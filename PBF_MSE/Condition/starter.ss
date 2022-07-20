@@ -4,7 +4,7 @@
 #_user_support_available_at:NMFS.Stock.Synthesis@noaa.gov
 #_user_info_available_at:https://vlab.ncep.noaa.gov/group/stock-synthesis
 dat_PBF_nonum.ss
-ctl_PBF_2022_0308_rev1.ss
+control_simple.ss
 0 # 0=use init values in control file; 1=use ss.par
 1 # run display detail (0,1,2)
 1 # detailed output (0=minimal for data-limited, 1=high (w/ wtatage.ss_new), 2=brief) 
