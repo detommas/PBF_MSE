@@ -12,7 +12,7 @@ working on developing and testing the MSE.
 
 Note that both the operating and estimation models are based on the
 Stock Synthesis software. The operating model is based on the ISC PBFWG
-2022 short (1983 start) assessment model.Note that the code was written
+2022 short (1983 start) assessment model. Note that the code was written
 for a Windows operating system and tested with SS version V3.30.14.08, R
 version 4.1.3, and r4ss package 1.44.0.
 
