@@ -28,7 +28,7 @@ version 4.1.3, and r4ss package 1.44.0.
     reflect the path where the PBF_MSE folder is on your computer.
 -   Run *PBF_MSE_itr1.R* to make sure the code works for 1 iteration (EM
     is now run without computing the hessian, so one iteration for the
-    30 year simulation shoudl take a maximum of about 8 hrs). This code
+    30 year simulation should take a maximum of about 8 hrs). This code
     calls the *PBF_MSE_hs1.R* wrapper function that runs the MSE.
 -   Go over the *PBF_MSE_hs1.R code* to make sure you understand what it
     does. Open it and run bits of it (for example, only run tstep=1 in
