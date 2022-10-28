@@ -6,10 +6,10 @@
 #' @param hs the harvest strategy being run
 #' @param hcr the hcr being run
 #' @param scn the scenario being run
-#' @param hsw the harvest strategy being run in Windows notation
-#' @param hcrw the hcr being run in Windows notation
+#' @param hsw the harves tstrategy being run in Windows notation
+#' @param hcrw the hcr being run in Winodws notation
 #' @param scnw the scenario being run in Windows notation
-#' @param pwin the parent directory path in Windows notation
+#' @param pwin he parent directory path in Windows notation
 #' @param itr iteration number
 #' @param tstep time step of the OM
 #' @param tasmt frequency of assessments
@@ -27,7 +27,6 @@ OMBoot_fun_tvry <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
   
 #*****************************CHANGE FORECAST FILE*******************************************   
   #Specify inputs to the change_for function
-  #it changes the forecast file to reflect the new end year
   if (tstep == 1){
     file_in = paste(pdir, hs, hcr, "forecast.ss", sep="")
   } else {
@@ -39,9 +38,9 @@ OMBoot_fun_tvry <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
   change_for(ss_file_in = file_in, ss_file_out = file_out, t_asmt = tasmt)
   
 #*****************************CHANGE PAR FILE**********************************************
-  #modifies par file to include recruitment deviations for future time steps
+  #include recruitment and selectivity deviations for future time steps
   
-  #Specify inputs to change_rec_devs function
+  #Specify inputs to change_rec_devs_alb function
   if (tstep == 1){
     pfile_in = paste(sdir,scn, "ss.PAR",sep="")
   } else {

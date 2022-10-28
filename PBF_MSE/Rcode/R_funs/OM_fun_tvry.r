@@ -31,7 +31,7 @@ OM_fun_tvry <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, ts
   setwd(paste(pdir, hs, hcr, scn, itr,"/", tstep, "/Boot/", sep = ""))
   
   #extract the data with no error from the bootstrap run
-  boot_dat=SS_readdat(file = "data.ss_new", section = 2)
+  boot_dat=SS_readdat(file = "data.ss_new", section=2)
   
   #extract end year
   endYear = boot_dat$endyr

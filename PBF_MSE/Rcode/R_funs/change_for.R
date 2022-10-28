@@ -21,11 +21,8 @@ change_for <- function(ss_file_in, ss_file_out, t_asmt){
   #create a new forecast file based on the old to be modified
   om_for_new = om_for
   
-  #change end years of the benchmark years for the period over which the selectivity, relF, and recruitment params are taken
-  #this is now coded to go from 2017 to the year before each assessment terminal year
-  om_for_new$Bmark_years[c(3,4,5,6,8,10)] = c((om_for$Bmark_years[3]+t_asmt),(om_for$Bmark_years[4]+t_asmt),
-                                              (om_for$Bmark_years[5]+t_asmt),(om_for$Bmark_years[6]+t_asmt),
-                                          (om_for$Bmark_years[8]+t_asmt),
+  #change end years of the benchmark years - only for recruitment
+  om_for_new$Bmark_years[c(8,10)] = c((om_for$Bmark_years[8]+t_asmt),
                                           (om_for$Bmark_years[10]+t_asmt))
   
   #change first year for caps and allocations
