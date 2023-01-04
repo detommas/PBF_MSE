@@ -11,7 +11,7 @@ working on developing and testing the MSE.
 
 Note that both the operating and estimation models are based on the
 Stock Synthesis software. The operating model is based on the ISC PBFWG
-2022 short (1983 start) assessment model.Note that the code was written
+2022 short (1983 start) assessment model. Note that the code was written
 for a Windows operating system and tested with SS version V3.30.18.00, R
 version 4.1.3, and r4ss package 1.44.0.
 
@@ -19,8 +19,8 @@ version 4.1.3, and r4ss package 1.44.0.
 
 -   Clone the repository your computer. It contains all the directories
     and files needed to run the MSE for scenario 1, harvest strategy 1,
-    and harvest control rule 1. Note that you need to keep the directory
-    structure as is.The numbered directory has the following format
+    and harvest control rule 15. Note that you need to keep the directory
+    structure as is. The numbered directory has the following format
     *harvest strategy/hcr/scenario/iteration/time step*
 -   Change paths at the start of *PBF_MSE_itr1.R* or *PBF_MSE_prll.R* and *PBF_MSE_hs1.R* to
     reflect the path where the PBF_MSE folder is on your computer.
