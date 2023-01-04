@@ -13,11 +13,11 @@
 change_rec_devs <- function(recdevs_new, par_file_in,
                             par_file_out){
   
-  ## This is the pattern on the line before the vector of current recdevs
-  pattern <- "# recdev2"
+  ## This is the pattern three lines before the vector of current recdevs
+  pattern <- "# recdev_early"
   
   par <- readLines(par_file_in, warn = FALSE)
-  which.line <- grep(pattern=pattern, x=par)+1
+  which.line <- grep(pattern=pattern, x=par)+3
   
   ## grab the old ones, note there is a leading space that needs to be
   ## deleted

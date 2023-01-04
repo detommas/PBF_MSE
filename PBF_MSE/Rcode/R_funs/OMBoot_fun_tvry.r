@@ -70,12 +70,12 @@ OMBoot_fun_tvry <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
     #Insert new catch data into .dat file
     change_dat_boot(ss_file_in = file_in, ss_file_out = file_out, t_asmt = tasmt, nrep = tasmt, cdat_new = new_cdat)
   } else {
-    change_dat_cpue_boot(ss_file_in = file_in, ss_file_out = file_out, t_asmt = tasmt, nrep = tasmt, cdat_new = new_cdat)
+    change_dat_cpue_boot_adj(ss_file_in = file_in, ss_file_out = file_out, t_asmt = tasmt, nrep = tasmt, cdat_new = new_cdat)
   }
   
   #***************************CHANGE CTL FILE*************************************
   #Modify end of blocks, end of main recruitment deviations, and set rec devs as fixed in control file
-  blk_in = paste(sdir, scn, "control_simple.ss", sep = "")
+  blk_in = paste(sdir, scn, "control_simple_1719_2021.ss", sep = "")
   blk_out = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/Boot/Boot.ctl", sep="")
   
   blk_end = 2020 + asmt_t[tstep] + (tasmt-1)

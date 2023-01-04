@@ -57,7 +57,7 @@ catch_calc <- function(ssout,yearsb,yearsf,ben,fmult){
   ages=0:20
   fleets = c(1:20,26:30)
   
-  #Compute f at age (apical xsel) for all fleets in PBF
+  #Compute f at age (apical F x sel) for all fleets in PBF
   for (a in 1:21){
     for (fl in 1:length(fleets)){
       for (s in 1:4){

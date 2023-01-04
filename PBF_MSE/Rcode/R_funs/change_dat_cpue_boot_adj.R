@@ -17,7 +17,7 @@
 #' @return A modified dat file.
 #' @author Desiree Tommasi
 
-change_dat_cpue_boot <- function(ss_file_in, ss_file_out, t_asmt, nrep, cdat_new){
+change_dat_cpue_boot_adj <- function(ss_file_in, ss_file_out, t_asmt, nrep, cdat_new){
   
   #read in data file from previous assessment period
   om_dat = SS_readdat(ss_file_in)
@@ -70,6 +70,12 @@ change_dat_cpue_boot <- function(ss_file_in, ss_file_out, t_asmt, nrep, cdat_new
   #Nsamp can be changed to increase/decrease the observation error
   len_old = om_dat$sizefreq_data_list
   
+  #To address bootstrapping bias all the effective sample sizes need to be multiplied by 10 based on the procedure 4  
+  #in ISC21/PBFWG-1/07 written by H. Lee 
+  for (j in 1:22){
+    len_old[[j]]$Nsamp=len_old[[j]]$Nsamp*10
+  }
+  
   #generate new dummy data data for fleet 1
   #select a random 2 years as a template - note only data from season 11.5 is currently being used in SAM
   len1n = len_old[[1]] %>% filter(Yr %in% c((2016-(t_asmt-1)):2016))
@@ -80,7 +86,7 @@ change_dat_cpue_boot <- function(ss_file_in, ss_file_out, t_asmt, nrep, cdat_new
   len2ns1 = len_old[[2]] %>% filter(Yr %in% c((2016-(t_asmt-1)):2016)&Seas==2.5)
   len2ns1$Yr = yearn
   len2ns1$Nsamp = rep(round(mean((len_old[[2]]%>% filter(Seas==2.5))$Nsamp)),t_asmt)
-  len2ns2 = len_old[[2]] %>% filter(Yr %in% c((2016-(t_asmt-1)):2016)&Seas==11.5)
+  len2ns2 = len_old[[2]] %>% filter(Yr %in% c((2018-(t_asmt-1)):2018)&Seas==11.5)
   len2ns2$Yr = yearn
   len2ns2$Nsamp = rep(round(mean((len_old[[2]]%>% filter(Seas==11.5))$Nsamp)),t_asmt)
   len2n=rbind(len2ns1,len2ns2)
@@ -105,10 +111,10 @@ change_dat_cpue_boot <- function(ss_file_in, ss_file_out, t_asmt, nrep, cdat_new
   len6ns1 = len_old[[6]] %>% filter(Yr %in% c((2016-(t_asmt-1)):2016)&Seas==5.5)
   len6ns1$Yr = yearn
   len6ns1$Nsamp = rep(round(mean((len_old[[6]]%>% filter(Seas==5.5))$Nsamp)),t_asmt)
-  len6ns2 = len_old[[6]] %>% filter(Yr %in% c((2019-(t_asmt-1)):2019)&Seas==8.5)
+  len6ns2 = len_old[[6]] %>% filter(Yr %in% c((2012-(t_asmt-1)):2012)&Seas==8.5)
   len6ns2$Yr = yearn
   len6ns2$Nsamp = rep(round(mean((len_old[[6]]%>% filter(Seas==8.5))$Nsamp)),t_asmt)
-  len6ns3 = len_old[[6]] %>% filter(Yr %in% c((2015-(t_asmt-1)):2015)&Seas==11.5)
+  len6ns3 = len_old[[6]] %>% filter(Yr %in% c((2008-(t_asmt-1)):2008)&Seas==11.5)
   len6ns3$Yr = yearn
   len6ns3$Nsamp = rep(round(mean((len_old[[6]]%>% filter(Seas==11.5))$Nsamp)),t_asmt)
   len6n=rbind(len6ns1,len6ns2,len6ns3)
@@ -127,12 +133,15 @@ change_dat_cpue_boot <- function(ss_file_in, ss_file_out, t_asmt, nrep, cdat_new
   len15ns1 = len_old[[15]] %>% filter(Yr %in% c((2016-(t_asmt-1)):2016)&Seas==2.5)
   len15ns1$Yr = yearn
   len15ns1$Nsamp = rep(round(mean((len_old[[15]]%>% filter(Seas==2.5))$Nsamp)),t_asmt)
-  len15ns2 = len_old[[15]] %>% filter(Yr %in% c((2018-(t_asmt-1)):2018)&Seas==5.5)
+  temp=len_old[[15]]
+  len15ns2 = temp[dim(len_old[[15]])[1]:(dim(len_old[[15]])[1]-2),]
+  len15ns2$Seas = rep(5.5,t_asmt)
   len15ns2$Yr = yearn
   len15ns2$Nsamp = rep(round(mean((len_old[[15]]%>% filter(Seas==5.5))$Nsamp)),t_asmt)
-  len15ns3 = len_old[[15]] %>% filter(Yr %in% c((2015-(t_asmt-1)):2015)&Seas==11.5)
+  len15ns3 = len15ns2
+  len15ns2$Seas = rep(11.5,t_asmt)
   len15ns3$Yr = yearn
-  len15ns3$Nsamp = rep(round(mean((len_old[[15]]%>% filter(Seas==5.5))$Nsamp)),t_asmt)
+  len15ns3$Nsamp = rep(round(mean((len_old[[15]]%>% filter(Seas==11.5))$Nsamp)),t_asmt)
   len15n=rbind(len15ns1,len15ns2,len15ns3)
   
   #Lcomps for fleet 17 
@@ -173,6 +182,11 @@ change_dat_cpue_boot <- function(ss_file_in, ss_file_out, t_asmt, nrep, cdat_new
   }
   
   om_dat_new$Nobs_per_method = nm
+  
+  #ensure that the bootstrap compression is not 0.01 for fleet 10 and fleet 11 
+  #that is mirrored to it to remove bootstrap bias according to Lee et al. 2022
+  om_dat_new$mincomp_per_method[10]=0.0001
+  om_dat_new$mincomp_per_method[11]=0.0001
   
   #Write a stock synthesis data file from the mse_dat list object
   SS_writedat(om_dat_new, ss_file_out)

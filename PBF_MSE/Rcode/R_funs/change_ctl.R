@@ -1,5 +1,5 @@
 #' Changes the PBF Stock Synthesis ctl file to
-#' 1) change end of blocks to reflect the terminal year of the current tstep
+#' 1) reflect the terminal year of the current tstep
 #' 2) change the last year of the recruitment deviations
 #' 3) set recruitment deviations to be fixed parameters or simple deviations
 #' 4) change variance adjustment
@@ -30,28 +30,28 @@ change_ctl = function(ss_file_in, ss_file_out, new_end, vadj){
   #Change block 1
   which.line = grep(pattern=pattern, x=ctl)+1
   blk1.old = ctl[which.line]
-  blk1.new = gsub("2019", new_end_c, blk1.old) # replace last year of block 1 
+  blk1.new = gsub("2021", new_end_c, blk1.old) # replace last year of block 1 
   ctl[which.line] = blk1.new
   #Change block 2
   which.line = grep(pattern=pattern, x=ctl)+2
   blk2.old = ctl[which.line]
-  blk2.new = gsub("2020 2020", paste("2020 ",new_end_c, sep=""),blk2.old) # replace last year of block 2 
+  blk2.new = gsub("2021 2021", paste("2021 ",new_end_c, sep=""),blk2.old) # replace last year of block 2 
   ctl[which.line] = blk2.new
   #Change block 3
   which.line = grep(pattern=pattern, x=ctl)+3
   blk3.old = ctl[which.line]
-  blk3.new = gsub("2020", new_end_c, blk3.old) # replace last year of block 3 
+  blk3.new = gsub("2021", new_end_c, blk3.old) # replace last year of block 3 
   ctl[which.line] = blk3.new
   #block 4 stays the same
   #Change block 5
   which.line = grep(pattern=pattern, x=ctl)+5
   blk5.old = ctl[which.line]
-  blk5.new = gsub("2020 2020", paste("2020 ",new_end_c, sep=""),blk5.old) # replace last year of block 5 
+  blk5.new = gsub("2021 2021", paste("2021 ",new_end_c, sep=""),blk5.old) # replace last year of block 5 
   ctl[which.line] = blk5.new
   #Change block 6
   which.line = grep(pattern=pattern, x=ctl)+6
   blk6.old = ctl[which.line]
-  blk6.new = gsub("2020", new_end_c, blk6.old) # replace last year of block 5 
+  blk6.new = gsub("2021", new_end_c, blk6.old) # replace last year of block 5 
   ctl[which.line] = blk6.new
   
   #change the recruitment deviations to not sum to 0

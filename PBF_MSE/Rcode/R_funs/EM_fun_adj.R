@@ -15,7 +15,7 @@
 #' 
 #' @author Desiree Tommasi
 
-EM_fun <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, datatype){
+EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, datatype){
  
 #*****************************CHANGE DAT FILE*******************************************   
   # Enter new catch data given the TAC into the PAR file
@@ -29,9 +29,7 @@ EM_fun <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, 
   setwd(paste(pdir, hs, hcr, scn, itr,"/", tstep, "/Boot/", sep = ""))
   
   #read the new .dat file with error from the bootstrap run
-  #USING SECTION 2 here for perfect data - as for some reason r4ss is not reading section 1 or 3
-  #working on this issue
-  boot_dat=SS_readdat(file = "data_expval.ss")
+  boot_dat=SS_readdat(file = "data.ss_new", section=datatype)
   
   #extract end year
   endYear = boot_dat$endyr
@@ -99,7 +97,7 @@ EM_fun <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, 
   shell(cmd = command_mv)
   
 #***************************CHANGE CTL FILE*************************************
-  ctl_in = paste(sdir, scn, "SAM/control_simple.ss", sep = "")
+  ctl_in = paste(sdir, scn, "SAM/control_simple_1719_2021.ss", sep = "")
   ctl_out = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/EM/EM.ctl", sep="")
   
   blk_end = 2020 + asmt_t[tstep] + (tasmt-1)

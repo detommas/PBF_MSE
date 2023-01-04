@@ -10,7 +10,7 @@
 #' @param ss_file_in filename of original dat file to be modified, with full path or relative to working directory
 #' @param ss_file_out filename for the new dat file with full path or relative to working directory
 #' @param t_asmt how often assessments are run in years (e.g if every three years, 3)
-#' @param nrep how many times the catch matrix has to be replicated (based on assessement time step)
+#' @param nrep how many times the catch matrix has to be replicated (1 means it remains as is)
 #' @param cdat_new set of new catch data, based on previous assessment time TAC
 #' @return A modified dat file.
 #' @author Desiree Tommasi

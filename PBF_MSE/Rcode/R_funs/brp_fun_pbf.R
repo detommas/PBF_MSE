@@ -1,4 +1,4 @@
-#' Computes a biomass reference point based on unfished SSB
+#' Computes a biomass reference point for North Pacific albacore tuna
 #' given an SS model output file 
 #'
 #' @param ssoutput An SS Report.sso file already read into R using the function SS_ouput in the package r4ss
