@@ -27,12 +27,12 @@ file.sources = list.files()
 sapply(file.sources,source,.GlobalEnv)
 
 #specify the frequency of assessments
-tasmt = 2
+tasmt = 3
 
-#we are projecting 30 years into the future
+#we are projecting 24 years into the future
 #we assume the assessment occurs every 3 years, so there are 10 assessment time steps 
-#below we specify when those happen in the 30 years time series
-asmt_t = seq(1, 30, by=tasmt)
+#below we specify when those happen in the 24 years time series as first management action really occurs three years into the simulation
+asmt_t = seq(1, 24, by=tasmt)
 
 #import needed files
 #catch ratios by fleet and season for each of the fleet groups obtained by running the bluefin_om_base.R code 
@@ -41,10 +41,11 @@ cr_ws= read.csv(paste(pdir,"crws.csv", sep = ""))
 cr_wm= read.csv(paste(pdir,"crwm.csv", sep = ""))
 cr_epo= read.csv(paste(pdir,"crepo.csv", sep = ""))
 cr_all = read.csv(paste(pdir,"crdat.csv", sep = ""))
+
 #Set the harvest strategy
 hsnum = 1
 #Set the HCR
-hcrnum=1
+hcrnum=15
 
 #Set the scenario
 scnnum=1

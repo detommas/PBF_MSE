@@ -1,7 +1,8 @@
-#North Pacific Bluefin tuna MSE code to multiple iterations in parallel
+#North Pacific Bluefin tuna MSE code to run one iteration
 
-#this runs the PBF MSE framework for 30 years for the specified iterations
+#this runs the PBF MSE framework for 21 years for the specified iteration
 #iterations differ in their recruitment deviations and random implementation errors
+#with an assessment every three years
 
 #clean up the workspace
 rm(list=ls())
@@ -26,13 +27,13 @@ sdir = "C:/Users/desiree.tommasi/Documents/Bluefin/PBF_MSE/Condition/"
 file.sources = list.files()
 sapply(file.sources,source,.GlobalEnv)
 
-#specify the frequency of assessments
-tasmt = 2
+#specify the frequency of assessments in years
+tasmt = 3
 
-#we are projecting 30 years into the future
+#we are projecting 24 years into the future
 #we assume the assessment occurs every 3 years, so there are 10 assessment time steps 
-#below we specify when those happen in the 30 years time series
-asmt_t = seq(1, 30, by=tasmt)
+#below we specify when those happen in the 24 years time series as first management action really occurs three years into the simulation
+asmt_t = seq(1, 24, by=tasmt)
 
 #import needed files
 #catch ratios by fleet and season for each of the fleet groups obtained by running the bluefin_om_base.R code 
@@ -45,7 +46,7 @@ cr_all = read.csv(paste(pdir,"crdat.csv", sep = ""))
 #Set the harvest strategy
 hsnum = 1
 #Set the HCR
-hcrnum=1
+hcrnum=15
 
 #Set the scenario
 scnnum=1
@@ -57,12 +58,10 @@ no_cores = detectCores() - 1
 cl= makeCluster(no_cores)
 registerDoParallel(cl)
 
-#Run the MSE code for 100 iterations
-#rdev1 is the last recruitment deviation from year 2015 in the 2017 assessment model
-#it is needed to compute the first random deviation with autocorrelation
-#Bthr is the SSB based biomass reference point. It represents the fraction of unfished dynamic SSB
-#Blim is the limit reference point represting the fraction of unfished dynamic SSB
+#Run the MSE code for specified number of iterations
+#Bthr is the SSB based biomass reference point. It represents the fraction of unfished SSB
+#Blim is the limit reference point represting the fraction of unfished SSB
 #Note that the F based TRP is specified already in the forecast file 
-#the output is alredy saved as the code runs in the respective folders
+#the output is already saved as the code runs in the respective folders
 #main output to then compute performance metrics is the outlist.text file created for each iteration
 foreach(itr = 1:25, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs1(hsnum,hcrnum,scnnum,itr, Bthr = 0.2, Blim = 0.077,sa=0,Fmin=0.05)}
