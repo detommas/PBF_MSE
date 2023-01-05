@@ -51,7 +51,7 @@ HCR1a_pbf_byfleet_f <- function(ssout, dat, yr, SSBtrs, SSBlim, Ftgt,cr, err, Fm
   } else if (SSBcur > SSBlim) {
     Fm = ((fmult-(Fmin*fmult))/(SSBtrs-SSBlim))*(SSBcur-SSBlim)+Fmin*fmult
   } else {
-    Fm=Fmin*Fmult
+    Fm=Fmin*fmult
   }
   
   #Calculate the total TAC given the current numbers at age, fmultiplier and biology and exploitation pattern 
