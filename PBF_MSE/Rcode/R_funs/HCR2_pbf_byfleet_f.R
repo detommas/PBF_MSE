@@ -51,7 +51,7 @@ HCR2_pbf_byfleet_f <- function(ssout, dat, yr, SSBlim, Ftgt,cr, err, hs,hcr,scn,
   } 
   
   #Calculate the total TAC given the current numbers at age, fmultiplier and biology and exploitation pattern 
-  cr = catch_calc(ssout=ssout,yearsb=yrb,yearsf=yrf,ben=ben,fmult=Fm)
+  cr = catch_calc_f(ssout=ssout,yearsb=yrb,yearsf=yrf,ben=ben,fmult=fmult,ffraction=Fm/fmult)
 
   #add a fleet type factor
   TAC_table = cr %>%
