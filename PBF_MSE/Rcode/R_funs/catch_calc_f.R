@@ -23,7 +23,7 @@ catch_calc_f <- function(ssout,yearsb,yearsf,ben,fmult,ffraction){
     waa=mean(waa)
   )
   
-  #Extract Age selectivity at age
+  #Extract selectivity at age
   Saa=ssout$ageselex %>% filter(Yr %in% c(yearsf)&Factor=="Asel2"&Fleet %in% c(1:20,26:30)) #also for surveys
   Saa_long = melt(Saa, id.vars=c("Factor", "Fleet", "Yr","Seas","Sex", "Morph", "Label"),variable.name = "Age",value.name = "Sa")
   Sdat_long = Saa_long %>% group_by(Factor, Fleet, Seas, Sex, Morph, Age) %>% summarize(
@@ -138,7 +138,7 @@ catch_calc_f <- function(ssout,yearsb,yearsf,ben,fmult,ffraction){
     }
   }
   
-  #Calculate the numbers at age in s2 the forecast
+  #Calculate the numbers at age in s2 of the forecast
   Ndatfs2_long = Ndatfs1_long
   Ndatfs2_long$Seas = 2
   
@@ -162,7 +162,7 @@ catch_calc_f <- function(ssout,yearsb,yearsf,ben,fmult,ffraction){
     }
   }
   
-  #Calculate the numbers at age in s3 the forecast
+  #Calculate the numbers at age in s3 of the forecast
   Ndatfs3_long = Ndatfs2_long
   Ndatfs3_long$Seas = 3
   
@@ -186,7 +186,7 @@ catch_calc_f <- function(ssout,yearsb,yearsf,ben,fmult,ffraction){
     }
   }
   
-  #Calculate the numbers at age in s4 the forecast
+  #Calculate the numbers at age in s4 of the forecast
   Ndatfs4_long = Ndatfs3_long
   Ndatfs4_long$Seas = 4
   
