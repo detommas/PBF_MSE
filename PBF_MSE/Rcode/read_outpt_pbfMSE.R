@@ -1,13 +1,13 @@
-#Combine outputs from all iterations in one dataframe
+#Combine outputs from all iterations in one dataframe for each HCR
 
 library(r4ss)
 
-#specify the HCR that is being run
+#specify the harvest strategy (HCR shape) that is being run
 hsnum = 1
 hs = paste(hsnum, "/", sep = "")
 
 #specify the HCRs that were run
-hcrnumv = c(108)
+hcrnumv = c(1:8,11,12)
 
 #Specify the scenario being run
 snum = 1
