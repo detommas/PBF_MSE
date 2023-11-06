@@ -4,8 +4,7 @@
 #' -computes a TAC
 #' -no rebuilding plan, TAC = TAC min if SSBcur<SSBlim
 #' -management action occurs when either SSBcur<SSBthreshold or when SSBcur<SSBlim with a 50% probability
-#' -allocation of the TAC is simply based on the average 2017-2019 allocation ***need to develop this to be based on 
-#' proportional fishing impact
+#' -allocation of the TAC is simply based on the relF specified in the forecast file
 #' -HCR controls all fleets
 #' 
 #' Here the exploitation rate is the ratio of the total catch in weight over the total biomass
@@ -14,35 +13,27 @@
 #' @param yr specifies the year for which to extract the current total biomass
 #' @param SSBtrs the threshold biomass reference point
 #' @param SSBlim the limit biomass reference point
-#' @param Ftgt is the fishing intensity that produces the specified SPR target. It is computed as an exploitation rate, 
-#' which is the ratio of the total annual catch to the biomass at the start of the year.
-#' @param cr is the catch ratio per fleet (by gear/country)
 #' @param err is the implementation error per fleet , if 1 no implementation error
 #' @param Fmin specifies the fraction of Ftarget that the minimum F is set to once the LRP is reached
 
 #' @return A TAC in mt
 #' @author Desiree Tommasi
 
-HCR1a_pbf_byfleet_f <- function(ssout, dat, yr, SSBtrs, SSBlim, Ftgt,cr, err, Fmin, hs,hcr,scn,itr,tstep, yrb,yrf){
+HCR1a_pbf_byfleet_f <- function(ssout, dat, yr, SSBtrs, SSBlim, err, Fmin, hs,hcr,scn,itr,tstep, yrb,yrf){
 
   #extract the current SSB, the spawning stock biomass in the terminal year of the stock assessment
   SSBcur = (dat %>% filter(Yr==yr))$SSB
   
-  #Extract the current total biomass
-  Btot = (dat %>% filter(Yr==yr))$Bio_Smry.1
-  
   #read the benchmark information from the forecast report file 
   ben_file_in = paste(pdir, hs, hcr, scn, itr,"/",tstep,"/OM/Forecast-report.SSO", sep = "")
-  benf=read.table(ben_file_in, fill = TRUE, quote = "",
-                  colClasses = "character", nrows = -1)
   ben <- readLines(ben_file_in, warn = FALSE)
   
   #extract the F multiplier
-  fmdat=ben[36]
-  fmdat = gsub("^\\s+|\\s+$", "", fmdat) # remove leading blank
-  fmdat = gsub("\\s+", " ", fmdat)       # remove >1 blanks
-  fmdat = as.numeric(unlist(strsplit(fmdat, split= " ")))
-  fmult = fmdat[2]
+  pattern = "Forecast_using_Fspr:"
+  which.line = grep(pattern=pattern, x=ben)
+  fmdat=ben[which.line]
+  fmdat2 = unlist(strsplit(fmdat, split= " "))
+  fmult = as.numeric(fmdat2[4])
   
   #Scale the fmult given the HCR and stock status
   
@@ -55,7 +46,7 @@ HCR1a_pbf_byfleet_f <- function(ssout, dat, yr, SSBtrs, SSBlim, Ftgt,cr, err, Fm
   }
   
   #Calculate the total TAC given the current numbers at age, fmultiplier and biology and exploitation pattern 
-  cr = catch_calc_f(ssout=ssout,yearsb=yrb,yearsf=yrf,ben=ben,fmult=fmult,ffraction=Fm/fmult)
+  cr = catch_calc_f(ssout=ssout,yearsb=yrb,yearsf=yrf,ben=ben,fmult=fmult,ffraction=(Fm/fmult))
 
   #add a fleet type factor
   TAC_table = cr %>%
@@ -80,12 +71,6 @@ HCR1a_pbf_byfleet_f <- function(ssout, dat, yr, SSBtrs, SSBlim, Ftgt,cr, err, Fm
   TACWm = TAC_table %>% filter(Ftype=="WPOm") %>% summarize(TAC=sum(TAC_err))
   TACE = TAC_table %>% filter(Ftype=="EPO") %>% summarize(TAC=sum(TAC_err))
   Discard = TAC_table %>% filter(Ftype=="Disc") %>% summarize(TAC=sum(TAC_err))
-  
-  #make sure catch limits are not exceeded, if so set to limit
-  #if (TACWs$TAC > 4341) {TACWs$TAC = 4341}
-  #if (TACWl$TAC > 7624) {TACWl$TAC = 7624}
-  #if (TACWm$TAC > 370) {TACWm$TAC = 370}
-  #if (TACE$TAC > 3995) {TACE$TAC = 3995}
   
   TAC_dat = list(TAC=TAC, TACWs=TACWs, TACWl=TACWl, TACWm=TACWm, TACE=TACE, Discards=Discard, TAC_flt = TAC_table)
   
