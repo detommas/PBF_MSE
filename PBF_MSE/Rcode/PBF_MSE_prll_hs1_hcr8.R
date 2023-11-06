@@ -1,6 +1,6 @@
 #North Pacific Bluefin tuna MSE code 
 
-#this runs the PBF MSE framework for 21 years for the specified iteration
+#this runs the PBF MSE framework for 24 years for the specified HCRs and iterations
 #iterations differ in their recruitment deviations and random implementation errors
 #with an assessment every three years
 
@@ -60,7 +60,8 @@ registerDoParallel(cl)
 
 #Run the MSE code for specified number of iterations
 #Bthr is the SSB based biomass reference point. It represents the fraction of unfished SSB
-#Blim is the limit reference point represting the fraction of unfished SSB
+#sa specifies if a stock assessment shoudl be run (1) or not (0)
+#fmin specific the fraction of the fishing intensity at the target reference point that correpsonds to the minimum fishing intensity
 #Note that the F based TRP is specified already in the forecast file 
 #the output is already saved as the code runs in the respective folders
 #main output to then compute performance metrics is the outlist.text file created for each iteration
