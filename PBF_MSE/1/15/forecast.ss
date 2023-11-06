@@ -3,8 +3,8 @@
 1 # Benchmarks: 0=skip; 1=calc F_spr,F_btgt,F_msy; 2=calc F_spr,F0.1,F_msy; 3=add F_Blimit; 
 2 # Do_MSY: 1= set to F(SPR); 2=calc F(MSY); 3=set to F(Btgt) or F0.1; 4=set to F(endyr); 5=calc F(MEY) with MSY_unit options
 # if Do_MSY=5, enter MSY_Units; then list fleet_ID, cost/F, price/mt, include_in_Fmey_scaling; # -fleet_ID to fill; -9999 to terminate
-0.3 # SPR target (e.g. 0.40)
-0.3 # Biomass target (e.g. 0.40)
+0.30 # SPR target (e.g. 0.40)
+0.30 # Biomass target (e.g. 0.40)
 #_Bmark_years: beg_bio, end_bio, beg_selex, end_selex, beg_relF, end_relF, beg_recr_dist, end_recr_dist, beg_SRparm, end_SRparm (enter actual year, or values of 0 or -integer to be rel. endyr)
  2002 2004 2017 2019 2017 2019 1983 2020 1983 2020
 #  2002 2004 2017 2019 2017 2019 1983 2020 1983 2020
