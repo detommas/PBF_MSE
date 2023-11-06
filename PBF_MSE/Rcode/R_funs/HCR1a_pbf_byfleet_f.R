@@ -2,12 +2,11 @@
 #' 
 #' This HCR has the following specifications
 #' -computes a TAC
-#' -no rebuilding plan, TAC = TAC min if SSBcur<SSBlim
-#' -management action occurs when either SSBcur<SSBthreshold or when SSBcur<SSBlim with a 50% probability
+#' -no rebuilding plan, TAC = TAC associated with current biomass and Fmin if SSBcur<=SSBlim
+#' -Cahnge in F from Ftarget occurs when either SSBcur<SSBthreshold or when SSBcur<=SSBlim with a 50% probability
 #' -allocation of the TAC is simply based on the relF specified in the forecast file
 #' -HCR controls all fleets
 #' 
-#' Here the exploitation rate is the ratio of the total catch in weight over the total biomass
 #' @param ssout SS output file
 #' @param dat specifies the data frame which contains the sprseries data extracted from the stock assessment output
 #' @param yr specifies the year for which to extract the current total biomass
@@ -15,6 +14,13 @@
 #' @param SSBlim the limit biomass reference point
 #' @param err is the implementation error per fleet , if 1 no implementation error
 #' @param Fmin specifies the fraction of Ftarget that the minimum F is set to once the LRP is reached
+#' @param hs specifies the harvest strategy
+#' @param hcr specifies the harvest control rule
+#' @param scn specifies the scenario
+#' @param itr specifies the iteration
+#' @param tstep specifies the time step
+#' @param yrb specifies the range of years over which the biology in the forecast is averaged over
+#' @param yrf specifies the range of years over which the selectivity in the forecast is averaged over
 
 #' @return A TAC in mt
 #' @author Desiree Tommasi
@@ -58,8 +64,8 @@ HCR1a_pbf_byfleet_f <- function(ssout, dat, yr, SSBtrs, SSBlim, err, Fmin, hs,hc
       Fleet %in% c(26,27,30) ~ "Disc"))
   
   #adds an implementation error - here it is the same across fleets.
-  #Note that discrds are already accounted for by the specific fleet, this is an implementaiton error in addition to that
-  #Note that when the catch is split back across fleet for input into the OM
+  #Note that discards are already accounted for by the specific fleet
+  #Note that when the catch is split back across fleets for input into the OM
   #the error will already be included
   #If the error differed by fleet, it should be included when the TAC is split across fleets
   TAC_table$TAC_err = TAC_table$yield*err
