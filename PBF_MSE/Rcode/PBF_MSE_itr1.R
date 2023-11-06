@@ -1,6 +1,6 @@
 #North Pacific Bluefin tuna MSE code to run one iteration
 
-#this runs the PBF MSE framework for 30 years for the specified iteration
+#this runs the PBF MSE framework for 24 years for the HCR and iterations
 #iterations differ in their recruitment deviations and random implementation errors
 
 #clean up the workspace
@@ -56,8 +56,11 @@ itr=1
 #Run the MSE code for 1 iteration
 #Bthr is the SSB based biomass reference point. It represents the fraction of unfished SSB
 #Blim is the limit reference point representing the fraction of unfished SSB
+#sa specifies if a stock assessment shoudl be run (1) or not (0)
+#Fmin specific the fraction of the fishing intensity at the target reference point that correpsonds to the minimum fishign intensity
 #Note that the F based TRP is specified already in the forecast file 
 #the output is already saved as the code runs in the respective folders
 #main output to then compute performance metrics is the outlist.text file
+#Note tha tthe reference points specified below are for HCR1. There is no HCR15 in the latest set of candidate HCRs
 
-PBF_MSE_hs1(hsnum,hcrnum,scnnum,itr, Bthr = 0.2, Blim = 0.077,sa=0,Fmin=0.05)
+PBF_MSE_hs1_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.2, Blim = 0.15,sa=0,Fmin=0.10)
