@@ -71,11 +71,13 @@ change_dat_cpue_boot_adj <- function(ss_file_in, ss_file_out, t_asmt, nrep, cdat
   len_old = om_dat$sizefreq_data_list
   
   #To address bootstrapping bias all the effective sample sizes need to be multiplied by 10 based on the procedure 4  
-  #in ISC21/PBFWG-1/07 written by H. Lee 
+  #in ISC21/PBFWG-1/07 written by H. Lee
+  #Only do this for the first time step as they woudl have been already adjusted in the following time steps
+  if (tstep == 1){
   for (j in 1:22){
     len_old[[j]]$Nsamp=len_old[[j]]$Nsamp*10
   }
-  
+  }
   #generate new dummy data data for fleet 1
   #select a random 2 years as a template - note only data from season 11.5 is currently being used in SAM
   len1n = len_old[[1]] %>% filter(Yr %in% c((2016-(t_asmt-1)):2016))

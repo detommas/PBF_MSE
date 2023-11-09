@@ -60,6 +60,13 @@ EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tst
     #extract the new size frequency data
     sf_dat = boot_dat$sizefreq_data_list
     sf_old = boot_old$sizefreq_data_list
+    
+    #need to change the effective sample size of the new bootstrap data back to original
+    #according to Lee's in ISC21/PBFWG-1/07
+    for (j in 1:22){
+      sf_dat[[j]]$Nsamp=boot_dat$sizefreq_data_list[[j]]$Nsamp/10
+    }
+    
     sf_new = sf_old
     for (j in c(1:6,12,14,15,17,18,20,21)){
       sf_add = sf_dat[[j]] %>% filter (Yr %in% c((endYear-tasmt+1):endYear))
@@ -73,12 +80,6 @@ EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tst
     
     #change the number of size frequency observations
     boot_new$Nobs_per_method = boot_dat$Nobs_per_method
-  }
-  
-  #need to change the effective sample size back to original
-  #according to Lee's in ISC21/PBFWG-1/07
-  for (j in 1:22){
-    boot_new$sizefreq_data_list[[j]]$Nsamp=boot_new$sizefreq_data_list[[j]]$Nsamp/10
   }
   
   #need to change the added constant back to original
