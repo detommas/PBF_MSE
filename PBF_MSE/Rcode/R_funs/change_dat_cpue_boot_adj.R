@@ -14,10 +14,11 @@
 #' @param t_asmt how often assessments are run in years (e.g if every three years, 3)
 #' @param nrep how many times the catch matrix has to be replicated (1 means it remains as is)
 #' @param cdat_new set of new catch data, based on previous assessment time TAC
+#' @param tstep assessment time step
 #' @return A modified dat file.
 #' @author Desiree Tommasi
 
-change_dat_cpue_boot_adj <- function(ss_file_in, ss_file_out, t_asmt, nrep, cdat_new){
+change_dat_cpue_boot_adj <- function(ss_file_in, ss_file_out, t_asmt, nrep, cdat_new, tstep){
   
   #read in data file from previous assessment period
   om_dat = SS_readdat(ss_file_in)
@@ -72,7 +73,7 @@ change_dat_cpue_boot_adj <- function(ss_file_in, ss_file_out, t_asmt, nrep, cdat
   
   #To address bootstrapping bias all the effective sample sizes need to be multiplied by 10 based on the procedure 4  
   #in ISC21/PBFWG-1/07 written by H. Lee
-  #Only do this for the first time step as they woudl have been already adjusted in the following time steps
+  #Only do this for the first time step as they would have been already adjusted in the following time steps
   if (tstep == 1){
   for (j in 1:22){
     len_old[[j]]$Nsamp=len_old[[j]]$Nsamp*10
