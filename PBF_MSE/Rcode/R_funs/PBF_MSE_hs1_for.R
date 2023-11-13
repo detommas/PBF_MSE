@@ -220,7 +220,7 @@ for (tstep in 1:length(asmt_t)){
     em_ftgt = (em_out$derived_quants %>% filter(Label == "annF_SPR"))$Value
     
     #Generate TAC based on current harvest control rule
-    TAC_mat = HCR1a_pbf_byfleet_f(ssout=om_out, dat = SPRmat, yr=yr_end, SSBtrs=ssb_thr, SSBlim=ssb_lim, err=1, Fmin=Fmin,hs=hs,hcr=hcr,scn=scn,itr=itr,tstep=tstep,yrb=c(2002:2004),yrf=c(2017:2019))
+    TAC_mat = HCR1a_pbf_byfleet_f(ssout=em_out, dat = SPRmat, yr=yr_end, SSBtrs=ssb_thr, SSBlim=ssb_lim, err=1, Fmin=Fmin,hs=hs,hcr=hcr,scn=scn,itr=itr,tstep=tstep,yrb=c(2002:2004),yrf=c(2017:2019))
     
     #Save the TAC
     file_tac = paste(pdir, hs, hcr, scn, itr,"/TAC",(tstep+1),".RData", sep = "")
