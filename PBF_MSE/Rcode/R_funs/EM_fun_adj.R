@@ -38,6 +38,11 @@ EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tst
   if (tstep ==1){
     boot_old = boot_dat
     boot_new = boot_old
+    #need to change the effective sample size of the new bootstrap data back to original
+    #according to Lee's in ISC21/PBFWG-1/07
+    for (j in c(1:22)){
+    boot_new$sizefreq_data_list[[j]]$Nsamp=boot_old$sizefreq_data_list[[j]]$Nsamp/10
+    }
   } else {
     boot_file = paste(pdir, hs, hcr, scn, itr,"/",(tstep-1),"/EM/EMdat.ss", sep="")
     boot_old = SS_readdat(file = boot_file)
