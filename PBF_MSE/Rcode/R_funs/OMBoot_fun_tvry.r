@@ -70,7 +70,7 @@ OMBoot_fun_tvry <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
     #Insert new catch data into .dat file
     change_dat_boot(ss_file_in = file_in, ss_file_out = file_out, t_asmt = tasmt, nrep = tasmt, cdat_new = new_cdat)
   } else {
-    change_dat_cpue_boot_adj(ss_file_in = file_in, ss_file_out = file_out, t_asmt = tasmt, nrep = tasmt, cdat_new = new_cdat,tstep=tstep)
+    change_dat_cpue_boot_adj(ss_file_in = file_in, ss_file_out = file_out, t_asmt = tasmt, nrep = tasmt, cdat_new = new_cdat, tstep=tstep)
   }
   
   #***************************CHANGE CTL FILE*************************************
