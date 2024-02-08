@@ -62,10 +62,13 @@ registerDoParallel(cl)
 #Blim is the limit reference point represting the fraction of unfished SSB
 #sa specifies if a stock assessment shoudl be run (1) or not (0)
 #fmin specific the fraction of the fishing intensity at the target reference point (TRP) that correpsonds to the minimum fishign intensity
+#lag specifies the lag between data availbility and the assessment time step
+#obse specifies if to use the expected values (2) or bootstrap (3) from the bootstrap data file that is fed into the EM
+#aspm specifies if, when sa=1, to use the aspm EM (aspm ="ASPMR-f1f12") or the full EM (aspm=NULL). This aspm is ASPM-R with size & selectivities for F1 & F12
 #Note that the F based TRP is specified already in the forecast file 
 #the output is already saved as the code runs in the respective folders
 #main output to then compute performance metrics is the outlist.text file created for each iteration
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs1_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.15,sa=0,Fmin=0.10)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs1_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.15,sa=0,Fmin=0.10,lag=0,obse=2,aspm=NULL)}
 
 #terminate cluster
 stopCluster(cl)
@@ -81,7 +84,7 @@ hcrnum=2
 #Set the scenario
 scnnum=1
 
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs1_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.15,sa=0,Fmin=0.10)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs1_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.15,sa=0,Fmin=0.10,lag=0,obse=2,aspm=NULL)}
 
 #terminate cluster
 stopCluster(cl)
@@ -96,7 +99,7 @@ hsnum = 1
 hcrnum=3
 #Set the scenario
 scnnum=1
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs1_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.15,sa=0,Fmin=0.10)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs1_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.15,sa=0,Fmin=0.10,lag=0,obse=2,aspm=NULL)}
 
 #terminate cluster
 stopCluster(cl)
@@ -111,7 +114,7 @@ hsnum = 1
 hcrnum=4
 #Set the scenario
 scnnum=1
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs1_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.25, Blim = 0.15,sa=0,Fmin=0.10)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs1_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.25, Blim = 0.15,sa=0,Fmin=0.10,lag=0,obse=2,aspm=NULL)}
 
 #terminate cluster
 stopCluster(cl)
@@ -126,7 +129,7 @@ hsnum = 1
 hcrnum=5
 #Set the scenario
 scnnum=1
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs1_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.25, Blim = 0.20,sa=0,Fmin=0.10)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs1_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.25, Blim = 0.20,sa=0,Fmin=0.10,lag=0,obse=2,aspm=NULL)}
 
 #terminate cluster
 stopCluster(cl)
@@ -141,7 +144,7 @@ hsnum = 1
 hcrnum=6
 #Set the scenario
 scnnum=1
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs1_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.10,sa=0,Fmin=0.43)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs1_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.10,sa=0,Fmin=0.43,lag=0,obse=2,aspm=NULL)}
 
 #terminate cluster
 stopCluster(cl)
@@ -156,7 +159,7 @@ hsnum = 1
 hcrnum=7
 #Set the scenario
 scnnum=1
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs1_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.10,sa=0,Fmin=0.67)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs1_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.10,sa=0,Fmin=0.67,lag=0,obse=2,aspm=NULL)}
 
 #terminate cluster
 stopCluster(cl)
@@ -171,7 +174,7 @@ hsnum = 1
 hcrnum=11
 #Set the scenario
 scnnum=1
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs1_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.15, Blim = 0.077,sa=0,Fmin=0.05)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs1_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.15, Blim = 0.077,sa=0,Fmin=0.05,lag=0,obse=2,aspm=NULL)}
 
 #terminate cluster
 stopCluster(cl)
@@ -186,7 +189,7 @@ hsnum = 1
 hcrnum=12
 #Set the scenario
 scnnum=1
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs1_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.077,sa=0,Fmin=0.05)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs1_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.077,sa=0,Fmin=0.05,lag=0,obse=2,aspm=NULL)}
 
 
 stopCluster(cl)
