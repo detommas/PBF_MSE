@@ -58,9 +58,12 @@ itr=1
 #Blim is the limit reference point representing the fraction of unfished SSB
 #sa specifies if a stock assessment shoudl be run (1) or not (0)
 #Fmin specific the fraction of the fishing intensity at the target reference point that correpsonds to the minimum fishign intensity
+#lag specifies the lag between data availbility and the assessment time step
+#obse specifies if to use the expected values (2) or bootstrap (3) from the bootstrap data file that is fed into the EM
+#aspm specifies if, when sa=1, to use the aspm EM (aspm ="ASPMR-f1f12") or the full EM (aspm=NULL). This aspm is ASPM-R with size & selectivities for F1 & F12
 #Note that the F based TRP is specified already in the forecast file 
 #the output is already saved as the code runs in the respective folders
 #main output to then compute performance metrics is the outlist.text file
 #Note tha tthe reference points specified below are for HCR1. There is no HCR15 in the latest set of candidate HCRs
 
-PBF_MSE_hs1_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.2, Blim = 0.15,sa=0,Fmin=0.10)
+PBF_MSE_hs1_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.2, Blim = 0.15,sa=0,Fmin=0.10, lag=0, obse=2,aspm=NULL)
