@@ -61,10 +61,13 @@ registerDoParallel(cl)
 #Bthr is the SSB based biomass reference point. It represents the fraction of unfished SSB
 #sa specifies if a stock assessment shoudl be run (1) or not (0)
 #fmin specific the fraction of the fishing intensity at the target reference point that correpsonds to the minimum fishign intensity
+#lag specifies the lag between data availbility and the assessment time step
+#obse specifies if to use the expected values (2) or bootstrap (3) from the bootstrap data file that is fed into the EM
+#aspm specifies if, when sa=1, to use the aspm EM (aspm ="ASPMR-f1f12") or the full EM (aspm=NULL). This aspm is ASPM-R with size & selectivities for F1 & F12
 #Note that the F based TRP is specified already in the forecast file 
 #the output is already saved as the code runs in the respective folders
 #main output to then compute performance metrics is the outlist.text file created for each iteration
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs2_910_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.20,sa=0)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs2_910_for(hsnum,hcrnum,scnnum,itr, Bthr = 0.20,sa=0,lag=0,obse=2,aspm=NULL)}
 
 #terminate cluster
 stopCluster(cl)
@@ -79,6 +82,6 @@ hsnum = 2
 hcrnum=10
 #Set the scenario
 scnnum=1
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs2_910_for(hsnum,hcrnum,scnnum,itr, Bthr=0.15, sa=0)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs2_910_for(hsnum,hcrnum,scnnum,itr, Bthr=0.15, sa=0,lag=0,obse=2,aspm=NULL)}
 
 stopCluster(cl)
