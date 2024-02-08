@@ -11,11 +11,19 @@
 #' @param pwin he parent directory path in Windows notation
 #' @param itr iteration number
 #' @param tstep time step of the OM
-#' @param datatype specifies section of new datafile from which to extract,  2 = perfect data, 3 = data with error 
+#' @param datatype specifies section of new datafile from which to extract,  2 = perfect data, 3 = data with error
+#' @param lag lag between data and assessment availbility and management 
+#' @param aspm aspm switch: = NULL (no ASPM, default),
+#'                            "ASPM",
+#'                            "ASPM-size" (w/ size for all fleets),
+#'                            "ASPMR" (ASPM-R),
+#'                            "ASPMR-size" (ASPM-R w/ size for all fleets),
+#'                            "ASPMR-sizef1f12" (ASPM-R w/size for all fleets, F1 & F12 selectivities),
+#'                            "ASPMR-f1f12" (ASPM-R w/ size & selectivities for F1 & F12)
 #' 
-#' @author Desiree Tommasi
+#' @author Desiree Tommasi and Noriotakahashi
 
-EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, datatype){
+EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, datatype, lag, aspm){
  
 #*****************************CHANGE DAT FILE*******************************************   
   # Enter new catch data given the TAC into the PAR file
@@ -32,32 +40,39 @@ EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tst
   boot_dat=SS_readdat(file = "data.ss_new", section=datatype)
   
   #extract end year
-  endYear = boot_dat$endyr
+  endYear = boot_dat$endyr - lag
   
   #read the old bootstrap data file (i.e. from previous time step). In the case of the first time step, this is the boot.dat file
   if (tstep ==1){
     boot_old = boot_dat
     boot_new = boot_old
-    #need to change the effective sample size of the new bootstrap data back to original
-    #according to Lee's in ISC21/PBFWG-1/07
+    
+    boot_new$endyr=endYear
+    boot_new$catch=boot_old$catch[which(boot_old$catch$year<=boot_new$endyr),]
+    boot_new$CPUE=boot_old$CPUE[which(boot_old$CPUE$year<=boot_new$endyr),]
     for (j in c(1:22)){
-    boot_new$sizefreq_data_list[[j]]$Nsamp=boot_old$sizefreq_data_list[[j]]$Nsamp/10
+      sdat=boot_old$sizefreq_data_list[[j]]
+      boot_new$sizefreq_data_list[[j]]=sdat %>% filter(Yr<=boot_new$endyr)
+      boot_new$Nobs_per_method[j]=dim(boot_new$sizefreq_data_list[[j]])[1]
+      #need to change the effective sample size of the new bootstrap data back to original
+      #according to Lee's in ISC21/PBFWG-1/07
+      boot_new$sizefreq_data_list[[j]]$Nsamp=boot_new$sizefreq_data_list[[j]]$Nsamp/10
     }
   } else {
     boot_file = paste(pdir, hs, hcr, scn, itr,"/",(tstep-1),"/EM/EMdat.ss", sep="")
     boot_old = SS_readdat(file = boot_file)
     boot_new = boot_old
     #Extract the new catch data
-    newCatchDat = boot_dat$catch %>% filter (year %in% c((endYear-tasmt+1):endYear))
+    newCatchDat = boot_dat$catch %>% filter (year %in% c((boot_dat$endyr-tasmt-lag+1):endYear))
     
     #add the new catch data
     boot_new$catch = rbind(boot_old$catch, newCatchDat)
     
     #There are three survey indices the Japan LL index (21), the Jpn Troll (24), and the TWLL one (25). 
     #Extract the new bootstrap
-    new_cpue21 = boot_dat$CPUE %>% filter(index==21&year %in% c((endYear-tasmt+1):endYear))
-    new_cpue24 = boot_dat$CPUE %>% filter(index==24&year %in% c((endYear-tasmt+1):endYear))
-    new_cpue25 = boot_dat$CPUE %>% filter(index==25&year %in% c((endYear-tasmt+1):endYear))
+    new_cpue21 = boot_dat$CPUE %>% filter(index==21&year %in% c((boot_dat$endyr-tasmt-lag+1):endYear))
+    new_cpue24 = boot_dat$CPUE %>% filter(index==24&year %in% c((boot_dat$endyr-tasmt-lag+1):endYear))
+    new_cpue25 = boot_dat$CPUE %>% filter(index==25&year %in% c((boot_dat$endyr-tasmt-lag+1):endYear))
     
     #add the new CPUE data
     boot_new$CPUE = rbind(boot_old$CPUE, new_cpue21, new_cpue24, new_cpue25)
@@ -74,17 +89,19 @@ EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tst
     
     sf_new = sf_old
     for (j in c(1:6,12,14,15,17,18,20,21)){
-      sf_add = sf_dat[[j]] %>% filter (Yr %in% c((endYear-tasmt+1):endYear))
+      sf_add = sf_dat[[j]] %>% filter (Yr %in% c((boot_dat$endyr-tasmt-lag+1):endYear))
       sf_new[[j]]=rbind(sf_old[[j]],sf_add)
     }
     
     boot_new$sizefreq_data_list = sf_new
     
     #modify end year
-    boot_new$endyr = boot_dat$endyr
+    boot_new$endyr = boot_dat$endyr -lag
     
     #change the number of size frequency observations
-    boot_new$Nobs_per_method = boot_dat$Nobs_per_method
+    for (j in c(1:6,12,14,15,17,18,20,21)){
+      boot_new$Nobs_per_method[j]=dim(boot_new$sizefreq_data_list[[j]])[1]
+    }
   }
   
   #need to change the added constant back to original
@@ -103,7 +120,32 @@ EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tst
   shell(cmd = command_mv)
   
 #***************************CHANGE CTL FILE*************************************
-  ctl_in = paste(sdir, scn, "SAM/control_simple_1719_2021.ss", sep = "")
+  if(is.null(aspm)){ # not use ASPM option
+    
+    ctl_in = paste(sdir, scn, "SAM/control_simple_1719_2021.ss", sep = "")
+    
+  } else { # use ASPM option
+    
+    aspm <- str_to_lower(aspm)
+    
+    ctl_in <- switch(aspm,
+                     # w/o size
+                     "aspm"  = paste(sdir, scn, "SAM/control_simple_1719_2021_ASPM.ss", sep = ""),
+                     "aspmr" = paste(sdir, scn, "SAM/control_simple_1719_2021_ASPMR.ss", sep = ""),
+                     # w/ size
+                     "aspm-size"  = paste(sdir, scn, "SAM/control_simple_1719_2021_ASPM_size.ss", sep = ""),
+                     "aspmr-size" = paste(sdir, scn, "SAM/control_simple_1719_2021_ASPMR_size.ss", sep = ""),
+                     "aspmr-sizef1f12" = paste(sdir, scn, "SAM/control_simple_1719_2021_ASPMR_sizeF1F12.ss", sep = ""),
+                     "aspmr-f1f12" = paste(sdir, scn, "SAM/control_simple_1719_2021_ASPMR_F1F12.ss", sep = "")
+    )
+    
+    if(is.null(ctl_in)){
+      ctl_in = paste(sdir, scn, "SAM/control_simple_1719_2021_ASPM_F1F12.ss", sep = "")
+      message("aspm argument is not correct, set to ASPM anyway to continue....")
+    }
+    
+  }
+  
   ctl_out = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/EM/EM.ctl", sep="")
   
   blk_end = 2020 + asmt_t[tstep] + (tasmt-1)
