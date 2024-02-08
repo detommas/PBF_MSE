@@ -9,11 +9,20 @@
 #' @param FBtrh the fraction of Btrh to consider for the threshold reference point
 #' @param Blim the fraction of unfished biomass the limit reference point refers to
 #' @param sa will a stock assessment be carried out or not, sa=0=no stock assessment, sa=1=stock assessment/em
-#' Note that the F target is specified in the forecast file. The fishing intensity is measured as the spawning potential ratio (SPR)
+#' @param lag lag between data and assessement output and management, if 0 assessment output sets the TAC fir the following year
+#' @param obse selects if perfect data (2) or data with error is fed into the EM, by specifying the datatype taken from the OM bootstrap data file
+#' @param aspm aspm switch: = NULL (no ASPM, default),
+#'                            "ASPM",
+#'                            "ASPM-size" (w/ size for all fleets),
+#'                            "ASPMR" (ASPM-R),
+#'                            "ASPMR-size" (ASPM-R w/ size for all fleets),
+#'                            "ASPMR-sizef1f12" (ASPM-R w/size for all fleets, F1 & F12 selectivities),
+#'                            "ASPMR-f1f12" (ASPM-R w/ size & selectivities for F1 & F12)
+#' #' Note that the F target is specified in the forecast file. The fishing intensity is measured as the spawning potential ratio (SPR)
 #' @return a data frame of output for performance statistics
 #' @author D.Tommasi
 
-PBF_MSE_hs1_25for = function(hsnum,hcrnum,scnnum,itr, Bthr, Blim, sa, Fmin) { 
+PBF_MSE_hs1_25for = function(hsnum,hcrnum,scnnum,itr, Bthr, Blim, sa, Fmin,lag,obse,aspm) { 
 
 #specify the path for the harvest strategy that is being run
 hs = paste(hsnum, "/", sep = "")
@@ -143,12 +152,21 @@ for (tstep in 1:length(asmt_t)){
     #****************************************************************************
     #Step 3: Generate files for operating model
     OM_fun_tvry_adj(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt, new_cdat, rec_devs)
+    #create another OM that uses lagged data 
+    if (lag>0){
+      OM_fun_tvry_adj_lag(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt, new_cdat, rec_devs,lag=lag)
+    }
     
     #*********************************************************************************
     #Step 5: Compute TAC using OM model output
     
     #read OM output file
-    out_dir = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/OM/", sep = "")
+    if (lag==0) {
+      out_dir = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/OM/", sep = "")
+    } else {
+      out_dir = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/OMlag/", sep = "")
+    }
+    
     om_out = SS_output(out_dir, covar = FALSE, ncols = 250)
     
     yr_end = om_out$endyr
@@ -196,7 +214,7 @@ for (tstep in 1:length(asmt_t)){
     
     #*****************************************************************************************
     #Step 4: Run the estimation model , can choose to run with (datatype =3) or without observation error (datatype=2)
-    EM_fun_adj(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, datatype=2)
+    EM_fun_adj(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, datatype=obse,lag=lag,aspm=aspm)
     
     #****************************************************************************
     #Step 5: Compute TAC using EM model output

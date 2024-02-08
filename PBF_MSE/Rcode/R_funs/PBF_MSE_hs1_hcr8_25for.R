@@ -13,7 +13,7 @@
 #' @return a data frame of output for performance statistics
 #' @author D.Tommasi
 
-PBF_MSE_hs1_hcr8_25for = function(hsnum,hcrnum,scnnum,itr, Bthr, sa) { 
+PBF_MSE_hs1_hcr8_25for = function(hsnum,hcrnum,scnnum,itr, Bthr, sa,lag) { 
 
 #specify the path for the harvest strategy that is being run
 hs = paste(hsnum, "/", sep = "")
@@ -157,12 +157,21 @@ for (tstep in 1:length(asmt_t)){
     #****************************************************************************
     #Step 3: Generate files for operating model
     OM_fun_tvry_adj(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt, new_cdat, rec_devs)
+    #create another OM that uses lagged data 
+    if (lag>0){
+      OM_fun_tvry_adj_lag(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt, new_cdat, rec_devs,lag=lag)
+    }
     
     #*********************************************************************************
     #Step 5: Compute TAC using OM model output
     
     #read OM output file
-    out_dir = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/OM/", sep = "")
+    if (lag==0) {
+      out_dir = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/OM/", sep = "")
+    } else {
+      out_dir = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/OMlag/", sep = "")
+    }
+    
     om_out = SS_output(out_dir, covar = FALSE, ncols = 250)
     
     yr_end = om_out$endyr
