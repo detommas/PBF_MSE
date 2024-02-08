@@ -46,7 +46,7 @@ cr_all = read.csv(paste(pdir,"crdat.csv", sep = ""))
 #Set the harvest strategy
 hsnum = 1
 #Set the HCR
-hcrnum=15
+hcrnum=1
 
 #Set the scenario
 scnnum=1
@@ -61,7 +61,12 @@ registerDoParallel(cl)
 #Run the MSE code for specified number of iterations
 #Bthr is the SSB based biomass reference point. It represents the fraction of unfished SSB
 #Blim is the limit reference point represting the fraction of unfished SSB
+#sa specifies if the EM is run or not
+fmin specifies the fraction of the TRP that th eminimum f is set to after the Blim is breached
+#lag specifies the lag between data availbility and the assessment time step
+#obse specifies if to use the expected values (2) or bootstrap (3) from the bootstrap data file that is fed into the EM
+#aspm specifies if, when sa=1, to use the aspm EM (aspm ="ASPMR-f1f12") or the full EM (aspm=NULL). This aspm is ASPM-R with size & selectivities for F1 & F12
 #Note that the F based TRP is specified already in the forecast file 
 #the output is already saved as the code runs in the respective folders
 #main output to then compute performance metrics is the outlist.text file created for each iteration
-foreach(itr = 1:25, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs1(hsnum,hcrnum,scnnum,itr, Bthr = 0.2, Blim = 0.077,sa=0,Fmin=0.05)}
+foreach(itr = 1:25, .packages = c('r4ss','dplyr','reshape2')) %dopar% { PBF_MSE_hs1(hsnum,hcrnum,scnnum,itr, Bthr = 0.2, Blim = 0.15,sa=0,Fmin=0.1, lag=0, obse=2,aspm=NULL)}
