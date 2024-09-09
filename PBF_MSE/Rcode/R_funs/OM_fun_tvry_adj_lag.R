@@ -12,13 +12,14 @@
 #' @param itr iteration number
 #' @param tstep time step of the OM
 #' @param tasmt frequency of assessments
-#' @param new_cdat new catch data obtained from TAC
 #' @param rec_devsn new recruitment deviations
-#' @param lag lag between data and assessment availbility and management
-#' 
+#' @param sdev age selectivity deviations
+#' @param lag lag between data and assessment availability and management
+#' @param yfor years over which to compute the sel and relF for the forecast file
+
 #' @author Desiree Tommasi
 
-OM_fun_tvry_adj_lag <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt, new_cdat, rec_devs,lag){
+OM_fun_tvry_adj_lag <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt, rec_devs, sdev, lag,yfor){
  
 #*****************************CREATE DAT FILE*******************************************   
   #The OM catch data corresponds to the bootstrap data with no error
@@ -32,7 +33,7 @@ OM_fun_tvry_adj_lag <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin,
   setwd(paste(pdir, hs, hcr, scn, itr,"/", tstep, "/Boot/", sep = ""))
   
   #extract the data with no error from the bootstrap run
-  boot_dat=SS_readdat(file = "data.ss_new", section=2)
+  boot_dat=SS_readdat(file = "data_expval.ss")
   
   #extract end year
   endYear = boot_dat$endyr - lag
@@ -45,7 +46,7 @@ OM_fun_tvry_adj_lag <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin,
 	  boot_new$endyr=endYear
     boot_new$catch=boot_old$catch[which(boot_old$catch$year<=boot_new$endyr),]
     boot_new$CPUE=boot_old$CPUE[which(boot_old$CPUE$year<=boot_new$endyr),]
-    for (j in 1:22){
+    for (j in 1:23){
       sdat=boot_old$sizefreq_data_list[[j]]
       boot_new$sizefreq_data_list[[j]]=sdat %>% filter(Yr<=boot_new$endyr)
       boot_new$Nobs_per_method[j]=dim(boot_new$sizefreq_data_list[[j]])[1]
@@ -65,12 +66,10 @@ OM_fun_tvry_adj_lag <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin,
     
     #There are three survey indices the Japan LL index (21), the Jpn Troll (24), and the TWLL one (25). 
     #Extract the new bootstrap
-    new_cpue21 = boot_dat$CPUE %>% filter(index==21&year %in% c((boot_dat$endyr-tasmt-lag+1):endYear))
-    new_cpue24 = boot_dat$CPUE %>% filter(index==24&year %in% c((boot_dat$endyr-tasmt-lag+1):endYear))
-    new_cpue25 = boot_dat$CPUE %>% filter(index==25&year %in% c((boot_dat$endyr-tasmt-lag+1):endYear))
-    
+    new_cpue31 = boot_dat$CPUE %>% filter(index==31&year %in% c((boot_dat$endyr-tasmt-lag+1):endYear))
+
     #add the new CPUE data
-    boot_new$CPUE = rbind(boot_old$CPUE, new_cpue21, new_cpue24, new_cpue25)
+    boot_new$CPUE = rbind(boot_old$CPUE, new_cpue31)
     
     #extract the new size frequency data
     sf_dat = boot_dat$sizefreq_data_list
@@ -78,12 +77,12 @@ OM_fun_tvry_adj_lag <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin,
     
     #need to change the effective sample size of the new bootstrap data back to original
     #according to Lee's in ISC21/PBFWG-1/07
-    for (j in 1:22){
+    for (j in 1:23){
       sf_dat[[j]]$Nsamp=boot_dat$sizefreq_data_list[[j]]$Nsamp/10
     }
     
     sf_new = sf_old
-    for (j in c(1:6,12,14,15,17,18,20,21)){
+    for (j in c(1:13,18,21,22)){
       sf_add = sf_dat[[j]] %>% filter (Yr %in% c((boot_dat$endyr-tasmt-lag+1):endYear))
       sf_new[[j]]=rbind(sf_old[[j]],sf_add)
     }
@@ -94,7 +93,7 @@ OM_fun_tvry_adj_lag <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin,
     boot_new$endyr = boot_dat$endyr -lag
     
     #change the number of size frequency observations
-     for (j in c(1:6,12,14,15,17,18,20,21)){
+     for (j in c(1:13,18,21,22)){
       boot_new$Nobs_per_method[j]=dim(boot_new$sizefreq_data_list[[j]])[1]
     }
   }
@@ -115,15 +114,14 @@ OM_fun_tvry_adj_lag <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin,
     #create a new forecast file based on the old to be modified
     om_for_new = om_for
     #change end years of the benchmark years - only for recruitment
-    om_for_new$Bmark_years[c(8,10)] = c((om_for$Bmark_years[8]+(tasmt-1)),
-                                        (om_for$Bmark_years[10]+(tasmt-1)))
-    om_for_new$Fcast_years[6] = om_for$Fcast_years[6]+(tasmt-1)
+    om_for_new$Bmark_years[c(3,4,5,6,8,10)] = c(yfor[1], yfor[length(yfor)], yfor[1], yfor[length(yfor)],endYear,endYear)
+    om_for_new$Fcast_years[c(1,2,3,4,6)] = c(yfor[1], yfor[length(yfor)], yfor[1], yfor[length(yfor)],endYear)
     #change first year for caps and allocations
-    om_for_new$FirstYear_for_caps_and_allocations = om_for$FirstYear_for_caps_and_allocations+(tasmt-1)
-    #change Rebuilder first chatch
-    om_for_new$Ydecl=om_for$Ydecl + (tasmt-1)
+    om_for_new$FirstYear_for_caps_and_allocations = endYear
+    #change Rebuilder first catch
+    om_for_new$Ydecl= endYear
     #change Rebuilder of current age structure
-    om_for_new$Yinit=om_for$Yinit + (tasmt-1)
+    om_for_new$Yinit= endYear
   } else {
     file_in = paste(pdir, hs, hcr, scn, itr,"/",(tstep),"/Boot/forecast.ss",sep="")
     #read in forecast file from previous assessment period
@@ -136,7 +134,7 @@ OM_fun_tvry_adj_lag <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin,
     om_for_new$Fcast_years[6] = om_for$Fcast_years[6]-1
     #change first year for caps and allocations
     om_for_new$FirstYear_for_caps_and_allocations = om_for$FirstYear_for_caps_and_allocations-1
-    #change Rebuilder first chatch
+    #change Rebuilder first catch
     om_for_new$Ydecl=om_for$Ydecl -1
     #change Rebuilder of current age structure
     om_for_new$Yinit=om_for$Yinit -1
@@ -151,20 +149,29 @@ OM_fun_tvry_adj_lag <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin,
   
   #Specify inputs to change_rec_devs function
   if (tstep == 1){
-    pfile_in = paste(sdir,scn, "ss.PAR",sep="")
+    pfile_in = paste(sdir,scn, "ss3.PAR",sep="")
+    #Select the recruitment deviations for the next 2 years since first OM run in FY2024
+    rec_devsn = rec_devs[(asmt_t[tstep]-1)]
+    #Select new selectivity deviations
+    sel_devsn = sdev[(asmt_t[tstep]-1),]
+
   } else {
-    pfile_in = paste(pdir, hs, hcr, scn, itr,"/",(tstep-1),"/Boot/ss.PAR", sep = "")
+    pfile_in = paste(pdir, hs, hcr, scn, itr,"/",(tstep-1),"/OMlag/ss.PAR", sep = "")
+    rec_devsn = rec_devs[(asmt_t[tstep-1]):(asmt_t[tstep]-1)]
+    sel_devsn = sdev[(asmt_t[tstep-1]):(asmt_t[tstep]-1),]
   }
   
   pfile_out = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/OMlag/ss.PAR", sep="")
   
   #Modify par file to include the recruitment deviations for the next assessment cycle
-  rec_devsn = rec_devs[asmt_t[tstep]:((asmt_t[tstep])+(tasmt-2))]
   change_rec_devs(recdevs_new = rec_devsn, par_file_in = pfile_in, par_file_out = pfile_out)
+  #Add new selectivity deviations
+  pfile_out2 = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/OMlag/ss.PAR", sep="")
+  change_selex_devs_pbf(seldevs_new = sel_devsn, par_file_in = pfile_out,par_file_out = pfile_out2, na)
 
   #***************************CHANGE CTL FILE*************************************
   #Modify end of blocks, end of main recruitment deviations, and set rec devs as fixed in control file
-  blk_in = paste(sdir, scn, "control_simple_1719_2021.ss", sep = "")
+  blk_in = paste(sdir, scn, "ctl_PBF_2024_0309_BC.ss", sep = "")
   blk_out = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/OMlag/Boot.ctl", sep="")
   
   blk_end = 2020 + asmt_t[tstep] + (tasmt-2)

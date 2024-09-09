@@ -7,7 +7,7 @@
 #' and the proportional impact 
 #' @author Desiree Tommasi
 
-impact_calc_h1 <- function(Dir,ssDir){
+impact_calc_h1_omdone <- function(Dir,ssDir){
   
   step_name <- c("noEPO", "noWPO", "noF","noWPOs","noWPOl","noWPOm","noUS","noMex","noJpn","noTwn","noKr")
   n_step <- length(step_name)
@@ -23,107 +23,6 @@ impact_calc_h1 <- function(Dir,ssDir){
   jpf <- c(1:2,6:10,12:19,24,25) #"Jpn"
   twf <- c(3,4) #"Taiwan"
   krf <- c(11) #"Korea"
-  
-  # read Base case data
-  CtrlDir <- paste0(Dir, "/OMdat.ss")
-  CtrlFile <- SS_readdat(CtrlDir)
-  Catch0=CtrlFile$catch
-  
-  # read par file and initial F estimates
-  ParDir <- paste0(Dir, "/ss.PAR")
-  ParFile <- readLines(ParDir, warn = F)
-  Init_F <- as.numeric(ParFile[49])
-  
-  #Loop to run the model with the specified fleets removed
-  for (step in 1:n_step) {
-    print(paste0("step: ", step_name[step]))
-    unlink(paste0(Dir, step_name[step]), recursive = TRUE) # remove the folder first
-    dir.create(paste0(Dir, step_name[step])) # create a folder for the each step's run
-    files <- c(paste0(Dir, "/ss.par"), paste0(Dir, "/ssnohess.bat"), 
-              paste0(Dir,"/starter.ss"), paste0(Dir, "/forecast.ss"), 
-              paste0(Dir, "/Boot.ctl"), paste0(Dir, "/OMdat.ss"))
-    file.copy(from = files, to = paste0(Dir, step_name[step]))
-    file2 <- ssDir
-    file.copy(from = file2, to = paste0(Dir, step_name[step]))
-    CtrlDir <- paste0(paste0(Dir, step_name[step]), "/OMdat.ss")
-    CtrlFile <- SS_readdat(CtrlDir)
-    
-    # remove the catch of each step's fishery
-    Catch <- CtrlFile$catch
-    
-    if (step == 1) 
-      fishery <- epof
-    if (step == 2) 
-      fishery <- wpof
-    if (step == 3) 
-      fishery <- nof
-    if (step == 4) 
-      fishery <- wposf
-    if (step == 5) 
-      fishery <- wpolf
-    if (step == 6) 
-      fishery <- wpomf
-    if (step == 7) 
-      fishery <- usf
-    if (step == 8) 
-      fishery <- mxf
-    if (step == 9) 
-      fishery <- jpf
-    if (step == 10) 
-      fishery <- twf
-    if (step == 11) 
-      fishery <- krf
-    
-    #The initial F is set using fleet 16, from the wpo. When catches for that fleet
-    #are set to 0, the par file needs to be modified to have no initial F
-    if (16 %in% c(fishery)){
-      #create new dat file with 0 catch for selected fisheries
-      Catch$catch[Catch$fleet %in% c(fishery)]<-0
-      CtrlFile$catch <- Catch
-      SS_writedat(CtrlFile,CtrlDir,overwrite=TRUE)
-      #remove initial F parameter from parameter file as no F8
-      ParDir <- paste0(paste0(Dir, step_name[step]), "/ss.par")
-      ParFile <- readLines(ParDir, warn = F)
-      ParFilen <- ParFile[-(48:49)]
-      #Set steepness to 1
-      ParFilen[33] <- 1
-      writeLines(ParFilen, ParDir)
-      #set ctl file to not use initial F
-      CtlDir <- paste0(paste0(Dir, step_name[step]), "/Boot.ctl")
-      CtlFile <- readLines(CtlDir, warn = F)
-      initFl <- CtlFile[164]
-      CtlFile[164] <- paste("#",initFl)
-      writeLines(CtlFile, CtlDir)
-    } else {
-      #create new dat file with 0 catch for selected fisheries
-      Catch$catch[Catch$fleet %in% c(fishery)] <- 0
-      #having an initial F seems to create problems, set to 0
-      Catch$catch[Catch$fleet==16&Catch$seas==1&Catch$year==(-999)] <- 0
-      CtrlFile$catch <- Catch
-      SS_writedat(CtrlFile,CtrlDir,overwrite=TRUE)
-      # change initial F in par file based on initial 5 years catch
-      ParDir <- paste0(paste0(Dir, step_name[step]), "/ss.par")
-      ParFile <- readLines(ParDir, warn = F)
-      #if the catches of fleet 16 change from the initial model one can scale th einit F by 
-      #ParFile[49] <- toString(Init_F * sum(Catch$catch[Catch$fleet==16&Catch$year<=1987])/sum(Catch0$catch[Catch0$fleet==16&Catch0$year<=1987]))
-      #remove initial F parameter from parameter file as no F8
-      ParFilen <- ParFile[-(48:49)]
-      #set steepness to 1
-      ParFilen[33] <- 1
-      writeLines(ParFilen, ParDir)
-      #set ctl file to not use initial F
-      CtlDir <- paste0(paste0(Dir, step_name[step]), "/Boot.ctl")
-      CtlFile <- readLines(CtlDir, warn = F)
-      initFl <- CtlFile[164]
-      CtlFile[164] <- paste("#",initFl)
-      writeLines(CtlFile, CtlDir)
-    }
-    
-    # run the model without estimation
-    command <- paste("cd", paste0(Dir, step_name[step]), "& ssnohess.bat", sep = " ")
-    # command <- paste0(Dir,step_name[step],'/go_nohess.bat')
-    x <- shell(cmd = command, intern = T, wait = T)
-  }
   
   #Extract the output from each run
   

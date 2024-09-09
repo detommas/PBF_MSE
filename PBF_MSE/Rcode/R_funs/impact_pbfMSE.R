@@ -29,7 +29,7 @@ tstep=8
 
 #specify directory with Ss-executable
 ssdir = paste(pdir,"SS_model/ss.exe",sep="")
-years=1983:2050
+years=1983:2045
 
 idat=data.frame(Year=rep(years,100),
                 SB=rep(c(1:length(years)),100),
@@ -58,13 +58,13 @@ idat=data.frame(Year=rep(years,100),
                 Kri=rep(c(1:length(years)),100),
                 itr=rep(c(1:length(years)),100))
 
-indx=seq(1,6800,by=68)
+indx=seq(1,6300,by=63)
 
 for (itr in 1:100){
-  itr_d= paste(pdir, hs, hcr, scn, itr, "/",tstep,"OM",sep = "")
-  imat = impact_calc(Dir=itr_d, ssDir=ssdir)
+  itr_d= paste(pdir, hs, hcr, scn, itr, "/",tstep,"/OM",sep = "")
+  imat = impact_calc_h1(Dir=itr_d, ssDir=ssdir)
   imat$itr=itr
-  idat[indx[itr]:(indx[itr]+67),]=imat
+  idat[indx[itr]:(indx[itr]+62),]=imat
 }
 
 #save output to file

@@ -12,19 +12,19 @@
 catch_calc_f <- function(ssout,yearsb,yearsf,ben,fmult,ffraction){
   
   #Extract natural mortality
-  Maa=ssout$Natural_Mortality_Bmark
-  Maa_long = melt(Maa[,4:25], id.vars=c("Seas"),variable.name = "Age",value.name = "Ma")
+  Maa=ssout$Natural_Mortality %>% filter(Yr==1983)
+  Maa_long = melt(Maa[,c(9,13:33)], id.vars=c("Seas"),variable.name = "Age",value.name = "Ma")
   
   #extract weight at age
-  Waamat=ssout$ageselex %>% filter(Yr %in% c(yearsb)&Factor=="bodywt"&Fleet %in% c(1:20,26:30)) #per season and fleet
+  Waamat=ssout$ageselex %>% filter(Yr %in% c(yearsb)&Factor=="bodywt"&Fleet %in% c(1:26)) #per season and fleet
   Waa_long = melt(Waamat, id.vars=c("Factor", "Fleet", "Yr","Seas","Sex", "Morph", "Label"),variable.name = "Age",value.name = "waa")
   Waa = Waa_long %>% group_by(Factor, Fleet, Seas, Sex, Morph, Age) %>% summarize(
     Yr=mean(Yr),
     waa=mean(waa)
   )
   
-  #Extract selectivity at age
-  Saa=ssout$ageselex %>% filter(Yr %in% c(yearsf)&Factor=="Asel2"&Fleet %in% c(1:20,26:30)) #also for surveys
+  #Extract Age selectivity at age
+  Saa=ssout$ageselex %>% filter(Yr %in% c(yearsf)&Factor=="Asel2"&Fleet %in% c(1:26)) #also for surveys
   Saa_long = melt(Saa, id.vars=c("Factor", "Fleet", "Yr","Seas","Sex", "Morph", "Label"),variable.name = "Age",value.name = "Sa")
   Sdat_long = Saa_long %>% group_by(Factor, Fleet, Seas, Sex, Morph, Age) %>% summarize(
     Yr=mean(Yr),
@@ -52,12 +52,12 @@ catch_calc_f <- function(ssout,yearsb,yearsf,ben,fmult,ffraction){
   relfs4 = gsub("\\s+", " ", relfs4)       # remove >1 blanks
   relfs4 = as.numeric(unlist(strsplit(relfs4, split= " ")))
   
-  Afdat = data.frame(Fleet=rep(c(1:20,26:30),4), Seas=c(rep(1,25),rep(2,25),rep(3,25),rep(4,25)), Af=c(relfs1[c(1:20,26:30)],relfs2[c(1:20,26:30)],relfs3[c(1:20,26:30)],relfs4[c(1:20,26:30)]))
+  Afdat = data.frame(Fleet=rep(c(1:26),4), Seas=c(rep(1,26),rep(2,26),rep(3,26),rep(4,26)), Af=c(relfs1[c(1:26)],relfs2[c(1:26)],relfs3[c(1:26)],relfs4[c(1:26)]))
   Afdat$Afm=Afdat$Af*fmult*ffraction
   Fdat=as.data.frame(Sdat_long)
   Fdat$Fa=0
   ages=0:20
-  fleets = c(1:20,26:30)
+  fleets = c(1:26)
   
   #Compute f at age (apical F x sel) for all fleets in PBF
   for (a in 1:21){
@@ -138,7 +138,7 @@ catch_calc_f <- function(ssout,yearsb,yearsf,ben,fmult,ffraction){
     }
   }
   
-  #Calculate the numbers at age in s2 of the forecast
+  #Calculate the numbers at age in s2 the forecast
   Ndatfs2_long = Ndatfs1_long
   Ndatfs2_long$Seas = 2
   
@@ -162,7 +162,7 @@ catch_calc_f <- function(ssout,yearsb,yearsf,ben,fmult,ffraction){
     }
   }
   
-  #Calculate the numbers at age in s3 of the forecast
+  #Calculate the numbers at age in s3 the forecast
   Ndatfs3_long = Ndatfs2_long
   Ndatfs3_long$Seas = 3
   
@@ -186,7 +186,7 @@ catch_calc_f <- function(ssout,yearsb,yearsf,ben,fmult,ffraction){
     }
   }
   
-  #Calculate the numbers at age in s4 of the forecast
+  #Calculate the numbers at age in s4 the forecast
   Ndatfs4_long = Ndatfs3_long
   Ndatfs4_long$Seas = 4
   
@@ -211,7 +211,7 @@ catch_calc_f <- function(ssout,yearsb,yearsf,ben,fmult,ffraction){
   }
   
   #sum yield over ages for each fleet and season
-  Cfdat = as.data.frame(Cfage %>% group_by(Fleet, Seas) %>% summarize(yield=sum(yield)))
+  #Cfdat = as.data.frame(Cfage %>% group_by(Fleet, Seas) %>% summarize(yield=sum(yield)))
   
-  return(Cfdat)
+  return(Cfage)
 }

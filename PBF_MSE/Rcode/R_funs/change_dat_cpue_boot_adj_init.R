@@ -13,12 +13,11 @@
 #' @param ss_file_out filename for the new dat file with full path or relative to working directory
 #' @param nrep how many times the catch matrix has to be replicated (1 means it remains as is)
 #' @param cdat_new set of new catch data, based on previous assessment time TAC
-#' @param cdat_new2 set of new catch data, based on TAC from two previous assessments
 #' @param tstep assessment time step
 #' @return A modified dat file.
 #' @author Desiree Tommasi
 
-change_dat_cpue_boot_adj <- function(ss_file_in, ss_file_out, nrep, cdat_new, cdat_new2, tstep){
+change_dat_cpue_boot_adj_init <- function(ss_file_in, ss_file_out, nrep, cdat_new, tstep){
   
   #read in data file from previous assessment period
   om_dat = SS_readdat(ss_file_in)
@@ -30,17 +29,10 @@ change_dat_cpue_boot_adj <- function(ss_file_in, ss_file_out, nrep, cdat_new, cd
   om_dat_new$endyr = om_dat$endyr + nrep
   
   #generate a vector of years for the catch data based on the end year of the previous data file and the assessment frequency
-  ldat=length(cdat_new$catch)
-  cyear=rep(1,ldat*nrep)
-  for (j in 1:nrep){
-    cyear[(j*ldat-ldat+1):(j*ldat)] = rep((om_dat$endyr+j),ldat)}
-  
+  cyear=cdat_new$year
+
   #repeat catch data according to the assessment period
-  #the first line repeats the TAC for the assessment cycle (tasmt)
-  #however, season 1 and 2 are based actually on the old TAC (cdat_new2)
-  #so catches for those season on the first year need to be replaced
-  cdat_new3 = data.frame(year=cyear,seas=rep(cdat_new$Seas,nrep),fleet=rep(cdat_new$Fleet,nrep),catch=rep(cdat_new$catch,nrep),catch_se=rep(0.1,ldat*nrep))
-  cdat_new3$catch[cdat_new3$seas%in%c(1,2)&cdat_new3$year==(om_dat$endyr + 1)]=cdat_new2$catch[cdat_new2$Seas%in%c(1,2)]
+  cdat_new3 = data.frame(year=cyear,seas=cdat_new$seas,fleet=cdat_new$fleet,catch=cdat_new$catch,catch_se=cdat_new$catch_se)
   
   #change the catch data
   catch_new = rbind(om_dat$catch, cdat_new3)

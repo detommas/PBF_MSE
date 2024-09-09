@@ -12,12 +12,10 @@
 #' @param itr iteration number
 #' @param tstep time step of the OM
 #' @param tasmt frequency of assessments
-#' @param new_cdat new catch data obtained from TAC
-#' @param rec_devsn new recruitment deviations
 #' 
 #' @author Desiree Tommasi
 
-OM_fun_tvry_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt, new_cdat, rec_devs){
+OM_fun_tvry_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt){
  
 #*****************************CREATE DAT FILE*******************************************   
   #The OM catch data corresponds to the bootstrap data with no error
@@ -31,7 +29,7 @@ OM_fun_tvry_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
   setwd(paste(pdir, hs, hcr, scn, itr,"/", tstep, "/Boot/", sep = ""))
   
   #extract the data with no error from the bootstrap run
-  boot_dat=SS_readdat(file = "data.ss_new", section=2)
+  boot_dat=SS_readdat(file = "data_expval.ss")
   
   #extract end year
   endYear = boot_dat$endyr
@@ -42,7 +40,7 @@ OM_fun_tvry_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
     boot_new = boot_old
     #need to change the effective sample size of the new bootstrap data back to original
     #according to Lee's in ISC21/PBFWG-1/07
-    for (j in c(1:22)){
+    for (j in c(1:23)){
       boot_new$sizefreq_data_list[[j]]$Nsamp=boot_old$sizefreq_data_list[[j]]$Nsamp/10
     }
   } else {
@@ -55,14 +53,12 @@ OM_fun_tvry_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
     #add the new catch data
     boot_new$catch = rbind(boot_old$catch, newCatchDat)
     
-    #There are three survey indices the Japan LL index (21), the Jpn Troll (24), and the TWLL one (25). 
+    #There is one survey index the the TWLL one (31). 
     #Extract the new bootstrap
-    new_cpue21 = boot_dat$CPUE %>% filter(index==21&year %in% c((endYear-tasmt+1):endYear))
-    new_cpue24 = boot_dat$CPUE %>% filter(index==24&year %in% c((endYear-tasmt+1):endYear))
-    new_cpue25 = boot_dat$CPUE %>% filter(index==25&year %in% c((endYear-tasmt+1):endYear))
-    
+    new_cpue31 = boot_dat$CPUE %>% filter(index==31&year %in% c((endYear-tasmt+1):endYear))
+
     #add the new CPUE data
-    boot_new$CPUE = rbind(boot_old$CPUE, new_cpue21, new_cpue24, new_cpue25)
+    boot_new$CPUE = rbind(boot_old$CPUE, new_cpue31)
     
     #extract the new size frequency data
     sf_dat = boot_dat$sizefreq_data_list
@@ -70,12 +66,12 @@ OM_fun_tvry_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
     
     #need to change the effective sample size of the new bootstrap data back to original
     #according to Lee's in ISC21/PBFWG-1/07
-    for (j in 1:22){
+    for (j in 1:23){
       sf_dat[[j]]$Nsamp=boot_dat$sizefreq_data_list[[j]]$Nsamp/10
     }
     
     sf_new = sf_old
-    for (j in c(1:6,12,14,15,17,18,20,21)){
+    for (j in c(1:13,18,21,22)){
       sf_add = sf_dat[[j]] %>% filter (Yr %in% c((endYear-tasmt+1):endYear))
       sf_new[[j]]=rbind(sf_old[[j]],sf_add)
     }
@@ -98,7 +94,7 @@ OM_fun_tvry_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
   SS_writedat(boot_new, path_dat)
   
 #*****************************COPY PAR, CTL, and FORECAST FILES FROM OM BOOT FOLDER**********************************************
-  #Move to the hcr directory 
+  #Move to the Bootstrap model directory 
   setwd(paste(pdir, hs, hcr, scn, itr,"/", tstep,"/Boot/", sep=""))
 
   command_mv = paste("for %I in (forecast.ss) do copy %I ", pwin, hsw, hcrw, scnw, itr, "\\",tstep,"\\OM\\", sep ="")

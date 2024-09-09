@@ -11,6 +11,7 @@
 #' @param pwin he parent directory path in Windows notation
 #' @param itr iteration number
 #' @param tstep time step of the OM
+#' @param tasmt frequency of assessments
 #' @param datatype specifies section of new datafile from which to extract,  2 = perfect data, 3 = data with error
 #' @param lag lag between data and assessment availbility and management 
 #' @param aspm aspm switch: = NULL (no ASPM, default),
@@ -20,15 +21,16 @@
 #'                            "ASPMR-size" (ASPM-R w/ size for all fleets),
 #'                            "ASPMR-sizef1f12" (ASPM-R w/size for all fleets, F1 & F12 selectivities),
 #'                            "ASPMR-f1f12" (ASPM-R w/ size & selectivities for F1 & F12)
+#' @param yfor years over which to compute the sel and relF for the forecast file
 #' 
-#' @author Desiree Tommasi and Noriotakahashi
+#' @author Desiree Tommasi and Norio Takahashi
 
-EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, datatype, lag, aspm){
+EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt, datatype, lag, aspm, yfor){
  
 #*****************************CHANGE DAT FILE*******************************************   
   # Enter new catch data given the TAC into the PAR file
   
-  #create directory for the operating model
+  #create directory for the estimation model
   setwd(paste(pdir, hs, hcr, scn, itr,"/", tstep, sep = ""))
   cmddir = "mkdir EM"
   shell(cmd = cmddir)
@@ -37,7 +39,11 @@ EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tst
   setwd(paste(pdir, hs, hcr, scn, itr,"/", tstep, "/Boot/", sep = ""))
   
   #read the new .dat file with error from the bootstrap run
-  boot_dat=SS_readdat(file = "data.ss_new", section=datatype)
+  if (datatype==2){
+    boot_dat=SS_readdat(file = "data_expval.ss")
+  } else {
+    boot_dat=SS_readdat(file = "data_boot_001.ss")
+  }
   
   #extract end year
   endYear = boot_dat$endyr - lag
@@ -50,7 +56,7 @@ EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tst
     boot_new$endyr=endYear
     boot_new$catch=boot_old$catch[which(boot_old$catch$year<=boot_new$endyr),]
     boot_new$CPUE=boot_old$CPUE[which(boot_old$CPUE$year<=boot_new$endyr),]
-    for (j in c(1:22)){
+    for (j in c(1:23)){
       sdat=boot_old$sizefreq_data_list[[j]]
       boot_new$sizefreq_data_list[[j]]=sdat %>% filter(Yr<=boot_new$endyr)
       boot_new$Nobs_per_method[j]=dim(boot_new$sizefreq_data_list[[j]])[1]
@@ -70,12 +76,10 @@ EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tst
     
     #There are three survey indices the Japan LL index (21), the Jpn Troll (24), and the TWLL one (25). 
     #Extract the new bootstrap
-    new_cpue21 = boot_dat$CPUE %>% filter(index==21&year %in% c((boot_dat$endyr-tasmt-lag+1):endYear))
-    new_cpue24 = boot_dat$CPUE %>% filter(index==24&year %in% c((boot_dat$endyr-tasmt-lag+1):endYear))
-    new_cpue25 = boot_dat$CPUE %>% filter(index==25&year %in% c((boot_dat$endyr-tasmt-lag+1):endYear))
-    
+    new_cpue31 = boot_dat$CPUE %>% filter(index==31&year %in% c((boot_dat$endyr-tasmt-lag+1):endYear))
+
     #add the new CPUE data
-    boot_new$CPUE = rbind(boot_old$CPUE, new_cpue21, new_cpue24, new_cpue25)
+    boot_new$CPUE = rbind(boot_old$CPUE, new_cpue31)
     
     #extract the new size frequency data
     sf_dat = boot_dat$sizefreq_data_list
@@ -83,12 +87,12 @@ EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tst
     
     #need to change the effective sample size of the new bootstrap data back to original
     #according to Lee's in ISC21/PBFWG-1/07
-    for (j in 1:22){
+    for (j in 1:23){
       sf_dat[[j]]$Nsamp=boot_dat$sizefreq_data_list[[j]]$Nsamp/10
     }
     
     sf_new = sf_old
-    for (j in c(1:6,12,14,15,17,18,20,21)){
+    for (j in c(1:13,18,21,22)){
       sf_add = sf_dat[[j]] %>% filter (Yr %in% c((boot_dat$endyr-tasmt-lag+1):endYear))
       sf_new[[j]]=rbind(sf_old[[j]],sf_add)
     }
@@ -99,7 +103,7 @@ EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tst
     boot_new$endyr = boot_dat$endyr -lag
     
     #change the number of size frequency observations
-    for (j in c(1:6,12,14,15,17,18,20,21)){
+    for (j in c(1:13,18,21,22)){
       boot_new$Nobs_per_method[j]=dim(boot_new$sizefreq_data_list[[j]])[1]
     }
   }
@@ -112,17 +116,48 @@ EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tst
   path_dat = paste(pdir, hs, hcr, scn, itr,"/",tstep,"/EM/EMdat.ss",sep="")
   SS_writedat(boot_new, path_dat)
   
-  #***************************COPY FORECAST FILE*************************************
-  #Move to the hcr directory 
-  setwd(paste(pdir, hs, hcr, scn, itr,"/", tstep,"/Boot/", sep=""))
+  #***************************MODIFY FORECAST FILE*************************************
+  if (tstep == 1){
+    file_in = paste(pdir, hs, hcr, "forecast.ss", sep="")
+    #read in forecast file from previous assessment period
+    em_for = SS_readforecast(file_in)
+    #create a new forecast file based on the old to be modified
+    em_for_new = em_for
+    #change end years of the benchmark years - only for recruitment
+    em_for_new$Bmark_years[c(3,4,5,6,8,10)] = c(yfor[1], yfor[length(yfor)], yfor[1], yfor[length(yfor)],endYear,endYear)
+    em_for_new$Fcast_years[c(1,2,3,4,6)] = c(yfor[1], yfor[length(yfor)], yfor[1], yfor[length(yfor)],endYear)
+    #change first year for caps and allocations
+    em_for_new$FirstYear_for_caps_and_allocations = endYear
+    #change Rebuilder first catch
+    em_for_new$Ydecl= endYear
+    #change Rebuilder of current age structure
+    em_for_new$Yinit= endYear
+  } else {
+    file_in = paste(pdir, hs, hcr, scn, itr,"/",(tstep),"/Boot/forecast.ss",sep="")
+    #read in forecast file from previous assessment period
+    em_for = SS_readforecast(file_in)
+    #create a new forecast file based on the old to be modified
+    em_for_new = em_for
+    #change end years of the benchmark years - only for recruitment
+    em_for_new$Bmark_years[c(8,10)] = c((em_for$Bmark_years[8]-1),
+                                        (em_for$Bmark_years[10]-1))
+    em_for_new$Fcast_years[6] = em_for$Fcast_years[6]-1
+    #change first year for caps and allocations
+    em_for_new$FirstYear_for_caps_and_allocations = em_for$FirstYear_for_caps_and_allocations-1
+    #change Rebuilder first catch
+    em_for_new$Ydecl=em_for$Ydecl -1
+    #change Rebuilder of current age structure
+    em_for_new$Yinit=em_for$Yinit -1
+  }
   
-  command_mv = paste("for %I in (forecast.ss) do copy %I ", pwin, hsw, hcrw, scnw, itr, "\\",tstep,"\\EM\\", sep ="")
-  shell(cmd = command_mv)
+  file_out= paste(pdir, hs, hcr, scn, itr,"/", tstep,"/EM",sep="")
+  #Write a stock synthesis data file from the mse_dat list object
+  SS_writeforecast(em_for_new, file_out)
   
 #***************************CHANGE CTL FILE*************************************
   if(is.null(aspm)){ # not use ASPM option
     
-    ctl_in = paste(sdir, scn, "SAM/control_simple_1719_2021.ss", sep = "")
+    ctl_in = paste(sdir, scn, "SAM/ctl_PBF_2024_0309_BC.ss", sep = "")
     
   } else { # use ASPM option
     
@@ -148,7 +183,7 @@ EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tst
   
   ctl_out = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/EM/EM.ctl", sep="")
   
-  blk_end = 2020 + asmt_t[tstep] + (tasmt-1)
+  blk_end = 2020 + asmt_t[tstep] + (tasmt-2)
   
   #change control file
   change_ctl(ctl_in, ctl_out, blk_end, vadj = 1)
