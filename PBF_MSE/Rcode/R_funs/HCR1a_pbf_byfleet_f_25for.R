@@ -24,7 +24,7 @@
 HCR1a_pbf_byfleet_f_25for <- function(ssout, dat, forf, yr, SSBtrs, SSBlim, err, Fmin, hs,hcr,scn,itr,tstep, yrb,yrf,tacl){
 
   #extract the current SSB, the spawning stock biomass in the terminal year of the stock assessment
-  SSBcur = (dat %>% filter(Yr==yr))$SSB
+  SSBcur = (dat[-c(3,4)] %>% filter(Yr==yr))$SSB
   
   #Extract the current catch
   Ccur = (ssout$catch %>% filter(Yr==yr))[,c(1,5,16)]

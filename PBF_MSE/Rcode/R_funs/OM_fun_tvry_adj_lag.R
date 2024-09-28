@@ -48,6 +48,7 @@ OM_fun_tvry_adj_lag <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin,
     boot_new$CPUE=boot_old$CPUE[which(boot_old$CPUE$year<=boot_new$endyr),]
     for (j in 1:23){
       sdat=boot_old$sizefreq_data_list[[j]]
+      names(sdat)[2]="Yr"
       boot_new$sizefreq_data_list[[j]]=sdat %>% filter(Yr<=boot_new$endyr)
       boot_new$Nobs_per_method[j]=dim(boot_new$sizefreq_data_list[[j]])[1]
       #need to change the effective sample size of the new bootstrap data back to original
@@ -83,6 +84,11 @@ OM_fun_tvry_adj_lag <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin,
     
     sf_new = sf_old
     for (j in c(1:13,18,21,22)){
+      #ensure headings compatible
+      names(sf_dat[[j]])[2]="Yr"
+      names(sf_old[[j]])[2]="Yr"
+      names(sf_new[[j]])[2]="Yr"
+      
       sf_add = sf_dat[[j]] %>% filter (Yr %in% c((boot_dat$endyr-tasmt-lag+1):endYear))
       sf_new[[j]]=rbind(sf_old[[j]],sf_add)
     }

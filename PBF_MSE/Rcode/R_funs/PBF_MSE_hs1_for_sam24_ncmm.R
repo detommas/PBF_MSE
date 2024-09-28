@@ -39,15 +39,15 @@ scn = paste(scnnum, "/", sep = "")
 scnw = paste(scnnum, "\\", sep = "")
 
 #Specify parent directories path 
-pdir = "D:/Desiree/PBF_MSE/"
-pwin = "D:\\Desiree\\PBF_MSE\\"
-#pdir = "C:/Users/desiree.tommasi/Documents/Bluefin/Github/s1720/PBF_MSE/"
-#pwin = "C:\\Users\\desiree.tommasi\\Documents\\Bluefin\\Github\\s1720\\PBF_MSE\\"
+#pdir = "D:/Desiree/PBF_MSE/"
+#pwin = "D:\\Desiree\\PBF_MSE\\"
+pdir = "C:/Users/desiree.tommasi/Documents/Bluefin/Github/PBF_MSE_main/PBF_MSE/"
+pwin = "C:\\Users\\desiree.tommasi\\Documents\\Bluefin\\Github\\PBF_MSE_main\\PBF_MSE\\"
 
 
 #Specify the path of conditioned initial OM
-sdir = "D:/Desiree/PBF_MSE/Condition/"
-#sdir = "C:/Users/desiree.tommasi/Documents/Bluefin/Github/s1720/PBF_MSE/Condition/"
+#sdir = "D:/Desiree/PBF_MSE/Condition/"
+sdir = "C:/Users/desiree.tommasi/Documents/Bluefin/Github/PBF_MSE_main/PBF_MSE/Condition/"
 
 #Specify vectors where to save output (output is from OM unless otherwise specified) for the future simulation years
 Rdat = 1:(length(asmt_t)*tasmt) # current recruits
@@ -199,6 +199,8 @@ for (tstep in 1:length(asmt_t)){
       SPB_em[(asmt_t[tstep]-ryr):asmt_t[tstep]] = SPRmat$SSB[(dim(SPRmat)[1]-(ryr+1)):(dim(SPRmat)[1]-1)]
       D_em[(asmt_t[tstep]-ryr):asmt_t[tstep]] = SPRmat$Deplete[(dim(SPRmat)[1]-(ryr+1)):(dim(SPRmat)[1]-1)]
       SPR_em[(asmt_t[tstep]-ryr):asmt_t[tstep]] = SPRmat$SPR[(dim(SPRmat)[1]-(ryr+1)):(dim(SPRmat)[1]-1)]
+      #ensure headings are compatible
+      names(SPRmat)[16]="Bio_Smry.1"
       Btot_em[(asmt_t[tstep]-ryr):asmt_t[tstep]] = SPRmat$Bio_Smry.1[(dim(SPRmat)[1]-(ryr+1)):(dim(SPRmat)[1]-1)] #Bio_Smry
       C_em[(asmt_t[tstep]-ryr):asmt_t[tstep]] = SPRmat$Retain_Catch[(dim(SPRmat)[1]-(ryr+1)):(dim(SPRmat)[1]-1)]
       
@@ -211,6 +213,8 @@ for (tstep in 1:length(asmt_t)){
         SPB_em[(asmt_t[tstep]-1)] = SPRmat$SSB[(dim(SPRmat)[1]-1)]
         D_em[(asmt_t[tstep]-1)] = SPRmat$Deplete[(dim(SPRmat)[1]-1)]
         SPR_em[(asmt_t[tstep]-1)] = SPRmat$SPR[(dim(SPRmat)[1]-1)]
+        #ensure headings are compatible
+        names(SPRmat)[16]="Bio_Smry.1"
         Btot_em[(asmt_t[tstep]-1)] = SPRmat$Bio_Smry.1[(dim(SPRmat)[1]-1)] #Bio_Smry
         C_em[(asmt_t[tstep]-1)] = SPRmat$Retain_Catch[(dim(SPRmat)[1]-1)]
         
@@ -222,6 +226,8 @@ for (tstep in 1:length(asmt_t)){
         SPB_em[(asmt_t[tstep]-tasmt):(asmt_t[tstep]-1)] = SPRmat$SSB[(dim(SPRmat)[1]-tasmt):(dim(SPRmat)[1]-1)]
         D_em[(asmt_t[tstep]-tasmt):(asmt_t[tstep]-1)] = SPRmat$Deplete[(dim(SPRmat)[1]-tasmt):(dim(SPRmat)[1]-1)]
         SPR_em[(asmt_t[tstep]-tasmt):(asmt_t[tstep]-1)] = SPRmat$SPR[(dim(SPRmat)[1]-tasmt):(dim(SPRmat)[1]-1)]
+        #ensure headings are compatible
+        names(SPRmat)[16]="Bio_Smry.1"
         Btot_em[(asmt_t[tstep]-tasmt):(asmt_t[tstep]-1)] = SPRmat$Bio_Smry.1[(dim(SPRmat)[1]-tasmt):(dim(SPRmat)[1]-1)] #Bio_Smry
         C_em[(asmt_t[tstep]-tasmt):(asmt_t[tstep]-1)] = SPRmat$Retain_Catch[(dim(SPRmat)[1]-tasmt):(dim(SPRmat)[1]-1)]
       }
@@ -291,6 +297,8 @@ for (tstep in 1:length(asmt_t)){
         SPB_em[(asmt_t[tstep]-1)] = SPRmat$SSB[(dim(SPRmat)[1]-1)]
         D_em[(asmt_t[tstep]-1)] = SPRmat$Deplete[(dim(SPRmat)[1]-1)]
         SPR_em[(asmt_t[tstep]-1)] = SPRmat$SPR[(dim(SPRmat)[1]-1)]
+        #ensure headings are compatible
+        names(SPRmat)[16]="Bio_Smry.1"
         Btot_em[(asmt_t[tstep]-1)] = SPRmat$Bio_Smry.1[(dim(SPRmat)[1]-1)] #Bio_Smry
         C_em[(asmt_t[tstep]-1)] = SPRmat$Retain_Catch[(dim(SPRmat)[1]-1)]
         
@@ -302,6 +310,8 @@ for (tstep in 1:length(asmt_t)){
         SPB_em[(asmt_t[tstep]-tasmt):(asmt_t[tstep]-1)] = SPRmat$SSB[(dim(SPRmat)[1]-tasmt):(dim(SPRmat)[1]-1)]
         D_em[(asmt_t[tstep]-tasmt):(asmt_t[tstep]-1)] = SPRmat$Deplete[(dim(SPRmat)[1]-tasmt):(dim(SPRmat)[1]-1)]
         SPR_em[(asmt_t[tstep]-tasmt):(asmt_t[tstep]-1)] = SPRmat$SPR[(dim(SPRmat)[1]-tasmt):(dim(SPRmat)[1]-1)]
+        #ensure headings are compatible
+        names(SPRmat)[16]="Bio_Smry.1"
         Btot_em[(asmt_t[tstep]-tasmt):(asmt_t[tstep]-1)] = SPRmat$Bio_Smry.1[(dim(SPRmat)[1]-tasmt):(dim(SPRmat)[1]-1)] #Bio_Smry
         C_em[(asmt_t[tstep]-tasmt):(asmt_t[tstep]-1)] = SPRmat$Retain_Catch[(dim(SPRmat)[1]-tasmt):(dim(SPRmat)[1]-1)]
       }
@@ -343,7 +353,9 @@ Rdat[1:((tasmt*tstep)-1)] = spr.om$Recruits[st:(length(spr.om$Recruits)-1)]
 SPBdat[1:((tasmt*tstep)-1)] = spr.om$SSB[st:(length(spr.om$SSB)-1)]
 Ddat[1:((tasmt*tstep)-1)] = spr.om$Deplete[st:(length(spr.om$Deplete)-1)]
 SPRdat[1:((tasmt*tstep)-1)] = spr.om$SPR[st:(length(spr.om$SPR)-1)]
-Btot[1:((tasmt*tstep)-1)] = spr.om$Bio_Smry[st:(length(spr.om$SPR)-1)] #
+#ensure headings are compatible
+names(spr.om)[16]="Bio_Smry.1"
+Btot[1:((tasmt*tstep)-1)] = spr.om$Bio_Smry.1[st:(length(spr.om$SPR)-1)] #
 Tdat[1:((tasmt*tstep)-1)] = spr.om$Retain_Catch[st:(length(spr.om$SPR)-1)]
 Ftgt_om [1:((tasmt*tstep))] = rep(true_out$derived_quants$Value[which(true_out$derived_quants$Label == "annF_SPR")],(tasmt*tstep))
 B0dat_om [1:((tasmt*tstep))] = rep(spr.om$SSBzero[1],(tasmt*tstep))

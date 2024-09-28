@@ -56,6 +56,11 @@ change_dat_cpue_boot_adj <- function(ss_file_in, ss_file_out, nrep, cdat_new, cd
   #cpue29 = cpue_old %>% filter(index==29) #Japanese LL
   #cpue27 = cpue_old %>% filter(index==27) #Japanese troll
   
+  #in some r4ss version cpue has a seas var but in the most recent it uses month instead
+  #so need to change the second heading to seas
+  names(cpue31)[2]="seas"
+  names(cpue_old)[2]="seas"
+  
   #Add CPUE dummy data for the additional future years of this time step
   #Note that the SE used here was the one in the 2020 assessment. 
   #This can be increased/decreased to change the observation error
@@ -82,8 +87,13 @@ change_dat_cpue_boot_adj <- function(ss_file_in, ss_file_out, nrep, cdat_new, cd
   if (tstep == 1){
   for (j in 1:23){
     len_old[[j]]$Nsamp=len_old[[j]]$Nsamp*10
+    names(len_old[[j]])[1:4]=c("Method","Yr","Seas","FltSvy")
   }
   }
+  for (j in 1:23){
+      len_old[[j]]$Nsamp=len_old[[j]]$Nsamp*10
+      names(len_old[[j]])[1:4]=c("Method","Yr","Seas","FltSvy")
+    }
   #generate new dummy data data for fleet 1
   #select a random 2 years as a template - note only data from season 11.5 is currently being used in SAM
   len1n = len_old[[1]] %>% filter(Yr %in% c((2016-(nrep-1)):2016))

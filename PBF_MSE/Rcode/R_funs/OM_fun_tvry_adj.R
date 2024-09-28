@@ -72,6 +72,11 @@ OM_fun_tvry_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
     
     sf_new = sf_old
     for (j in c(1:13,18,21,22)){
+      #ensure headings compatible
+      names(sf_dat[[j]])[2]="Yr"
+      names(sf_old[[j]])[2]="Yr"
+      names(sf_new[[j]])[2]="Yr"
+      
       sf_add = sf_dat[[j]] %>% filter (Yr %in% c((endYear-tasmt+1):endYear))
       sf_new[[j]]=rbind(sf_old[[j]],sf_add)
     }
