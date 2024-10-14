@@ -119,7 +119,7 @@ for (tstep in 1:length(asmt_t)){
     TACdat = TACWs+TACWl+TACE
     
     new_cdat=TACmat$TAC_flt
-    names(new_cdat)[5]="catch"
+    names(new_cdat)[3]="catch"
   }
   
   #Record the TAC - based on calendar year (everything else is FY), set in the previous time step but effective for the current, recorded for the calendar year
