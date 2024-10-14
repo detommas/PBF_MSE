@@ -125,7 +125,7 @@
  -5 5 -0.114488 0 2.5 6 1 # SR_regime_BLK3add_1982
 1 #do_recdev:  0=none; 1=devvector (R=F(SSB)+dev); 2=deviations (R=F(SSB)+dev); 3=deviations (R=R0*dev; dev2=R-f(SSB)); 4=like 3 with sum(dev2) adding penalty
 1982 # first year of main recr_devs; early devs can precede this era
-2021 # last year of main recr_devs; forecast devs start in following year
+2022 # last year of main recr_devs; forecast devs start in following year
 1 #_recdev phase 
 1 # (0/1) to read 13 advanced options
  1973 #_recdev_early_start (0=none; neg value makes relative to recdev_start)
@@ -201,38 +201,38 @@
 #_5:  0/1 for biasadj or not
 #_6:  0/1 to float
 #_   fleet      link link_info  extra_se   biasadj     float  #  fleetname
-        27         1         0         0         0         1  #  S1JPN_LL(1993-2019)
-        28         1         0         0         0         1  #  S2JPN_LL(1983-1992)
-        29         1         0         0         0         1  #  S3JPN_Troll_ChinaSea
-        30         1         0         0         0         1  #  S4JPN_Rec_monitoring
-        31         1         0         0         0         1  #  S5TWLL_GLMM_South
-        32         1         0         0         0         1  #  S6TWLL_GLMM_Whole
-        33         1         0         0         0         1  #  S7TWLL_GeoSt_South
-        34         1         0         0         0         1  #  S8TWLL_GeoSt_Whole
-        35         1         0         0         0         1  #  S9TWLL_GeoSt_All_age
-        36         1         0         0         0         1  #  S10TWLL_GeoSt_age6-8
-        37         1         0         0         0         1  #  S11TWLL_GeoSt_age9-11
-        38         1         0         0         0         1  #  S12TWLL_GeoSt_age12-14
-        39         1         0         0         0         1  #  S13TWLL_GeoSt_age15-17
-        40         1         0         0         0         1  #  S14TWLL_GeoSt_age18+
+        27         1         0         0         0         0  #  S1JPN_LL(1993-2019)
+        28         1         0         0         0         0  #  S2JPN_LL(1983-1992)
+        29         1         0         0         0         0  #  S3JPN_Troll_ChinaSea
+        30         1         0         0         0         0  #  S4JPN_Rec_monitoring
+        31         1         0         0         0         0  #  S5TWLL_GLMM_South
+        32         1         0         0         0         0  #  S6TWLL_GLMM_Whole
+        33         1         0         0         0         0  #  S7TWLL_GeoSt_South
+        34         1         0         0         0         0  #  S8TWLL_GeoSt_Whole
+        35         1         0         0         0         0  #  S9TWLL_GeoSt_All_age
+        36         1         0         0         0         0  #  S10TWLL_GeoSt_age6-8
+        37         1         0         0         0         0  #  S11TWLL_GeoSt_age9-11
+        38         1         0         0         0         0  #  S12TWLL_GeoSt_age12-14
+        39         1         0         0         0         0  #  S13TWLL_GeoSt_age15-17
+        40         1         0         0         0         0  #  S14TWLL_GeoSt_age18+
 -9999 0 0 0 0 0
 #
 #_Q_parms(if_any);Qunits_are_ln(q)
 #_          LO            HI          INIT         PRIOR         PR_SD       PR_type      PHASE    env-var    use_dev   dev_mnyr   dev_mxyr     dev_PH      Block    Blk_Fxn  #  parm_name
-           -25            25      -5.18175             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S1JPN_LL(1993-2019)(27)
-           -25            25      -10.5442             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S2JPN_LL(1983-1992)(28)
-           -25            25      -7.96393             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S3JPN_Troll_ChinaSea(29)
-           -25            25      -3.64916             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S4JPN_Rec_monitoring(30)
-           -25            25      -3.88561             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S5TWLL_GLMM_South(31)
-           -25            25      -3.87848             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S6TWLL_GLMM_Whole(32)
-           -25            25      -3.99474             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S7TWLL_GeoSt_South(33)
-           -25            25      -3.91355             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S8TWLL_GeoSt_Whole(34)
-           -25            25      -3.97468             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S9TWLL_GeoSt_All_age(35)
-           -25            25      0.974704             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S10TWLL_GeoSt_age6-8(36)
-           -25            25       3.02195             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S11TWLL_GeoSt_age9-11(37)
-           -25            25       3.41275             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S12TWLL_GeoSt_age12-14(38)
-           -25            25       3.66158             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S13TWLL_GeoSt_age15-17(39)
-           -25            25       3.92409             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S14TWLL_GeoSt_age18+(40)
+           -25            25      -5.17994             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S1JPN_LL(1993-2019)(27)
+           -25            25      -10.5422             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S2JPN_LL(1983-1992)(28)
+           -25            25      -7.96379             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S3JPN_Troll_ChinaSea(29)
+           -25            25      -3.64934             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S4JPN_Rec_monitoring(30)
+           -25            25      -3.88265             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S5TWLL_GLMM_South(31)
+           -25            25      -3.87552             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S6TWLL_GLMM_Whole(32)
+           -25            25      -3.99172             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S7TWLL_GeoSt_South(33)
+           -25            25      -3.91055             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S8TWLL_GeoSt_Whole(34)
+           -25            25      -3.97166             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S9TWLL_GeoSt_All_age(35)
+           -25            25       0.97561             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S10TWLL_GeoSt_age6-8(36)
+           -25            25       3.02382             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S11TWLL_GeoSt_age9-11(37)
+           -25            25       3.41551             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S12TWLL_GeoSt_age12-14(38)
+           -25            25       3.66511             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S13TWLL_GeoSt_age15-17(39)
+           -25            25       3.93076             0             1             0         -1          0          0          0          0          0          0          0  #  LnQ_base_S14TWLL_GeoSt_age18+(40)
 #_no timevary Q parameters
 #
 #_size_selex_patterns
@@ -754,7 +754,7 @@
            -15            15     -0.246862             0           999             6      3  # AgeSel_P8_F5JPN_TPS_PO(5)_BLK2repl_2011
            -15            15      -1.81631             0           999             6      3  # AgeSel_P8_F5JPN_TPS_PO(5)_BLK2repl_2015
            -15            15       8.47527             0           999             6      3  # AgeSel_P8_F5JPN_TPS_PO(5)_BLK2repl_2019
-           -15            15    0.00593746             0           999             6      3  # AgeSel_P8_F5JPN_TPS_PO(5)_BLK2repl_2020
+           -15            15    0.00593746             0           999             6      -3  # AgeSel_P8_F5JPN_TPS_PO(5)_BLK2repl_2020
         0.0001             2             1             1           0.5             6      -5  # AgeSel_P4_F6JPN_TPS_SOJ(6)_dev_se
          -0.99          0.99             0             0           0.5             6      -6  # AgeSel_P4_F6JPN_TPS_SOJ(6)_dev_autocorr
         0.0001             2             1             1           0.5             6      -5  # AgeSel_P5_F6JPN_TPS_SOJ(6)_dev_se
