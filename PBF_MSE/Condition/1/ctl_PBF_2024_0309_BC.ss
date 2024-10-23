@@ -754,7 +754,7 @@
            -15            15     -0.246862             0           999             6      3  # AgeSel_P8_F5JPN_TPS_PO(5)_BLK2repl_2011
            -15            15      -1.81631             0           999             6      3  # AgeSel_P8_F5JPN_TPS_PO(5)_BLK2repl_2015
            -15            15       8.47527             0           999             6      3  # AgeSel_P8_F5JPN_TPS_PO(5)_BLK2repl_2019
-           -15            15    0.00593746             0           999             6      -3  # AgeSel_P8_F5JPN_TPS_PO(5)_BLK2repl_2020
+           -15            15    0.00593746             0           999             6      3  # AgeSel_P8_F5JPN_TPS_PO(5)_BLK2repl_2020
         0.0001             2             1             1           0.5             6      -5  # AgeSel_P4_F6JPN_TPS_SOJ(6)_dev_se
          -0.99          0.99             0             0           0.5             6      -6  # AgeSel_P4_F6JPN_TPS_SOJ(6)_dev_autocorr
         0.0001             2             1             1           0.5             6      -5  # AgeSel_P5_F6JPN_TPS_SOJ(6)_dev_se
