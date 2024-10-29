@@ -90,6 +90,7 @@ HCR1a_pbf_byfleet_f_25for <- function(ssout, dat, forf, yr, SSBtrs, SSBlim, err,
   cage2$Ycur = Yagel2$Ycur
   
   #Calculates the TAC by fleet and age if the HCR determined TAC has a change greater than tacl
+  if (tacl>0){
   if (abs(CchangeWs) > (tacl/100) & CchangeWs > 0){
     cage2$TAC[cage2$Fleet %in% c(8:10,12:16)]=cage2$Ycur[cage2$Fleet %in% c(8:10,12:16)]*(1+tacl/100)
     cage2$TAC[cage2$Fleet %in% c(11,17:19)&cage2$Size=="small"]=cage2$Ycur[cage2$Fleet %in% c(11,17:19)&cage2$Size=="small"]*(1+tacl/100)
@@ -125,7 +126,9 @@ HCR1a_pbf_byfleet_f_25for <- function(ssout, dat, forf, yr, SSBtrs, SSBlim, err,
   if (SSBlim > SSBcur){
     cage2$TAC = cage2$yield
   }
-  
+  } else {
+  cage2$TAC = cage2$yield
+  }
   #SET DISCARDS
   #might be useful to have a "perfect management" run where discards are as set by management
   #so if err=0 discards fleets are equal to yield, if not fleet 24 = 5% of all WPO fleets except 14, 

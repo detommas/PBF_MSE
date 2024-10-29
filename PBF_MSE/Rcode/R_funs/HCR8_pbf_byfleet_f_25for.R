@@ -20,14 +20,26 @@
 #' @return A TAC in mt
 #' @author Desiree Tommasi
 
-HCR8_pbf_byfleet_f_25for <- function(ssout, dat, forf, yr, SSBtrs, SSBlim, Ftgt,cr, err, Cmin, hs,hcr,scn,itr,tstep, yrb,yrf){
+HCR8_pbf_byfleet_f_25for <- function(ssout, dat, forf, yr, SSBtrs, SSBlim, Ftgt,cr, err, Cmin, hs,hcr,scn,itr,tstep, yrb,yrf,tacl){
 
   #extract the current SSB, the spawning stock biomass in the terminal year of the stock assessment
-  SSBcur = (dat %>% filter(Yr==yr))$SSB
+  SSBcur = dat[(dat$Yr==yr),]$SSB
   
-  #Extract the current catch
-  Ccur = (ssout$catch %>% filter(Yr==yr))[,c(1,5,16)]
-  Ctot = sum(Ccur$dead_bio)
+  #Extract current catch at age
+  Curcage=ssout$catage[,-c(4,5)] %>% filter(Yr==yr)
+  #extract current weight at age
+  Wage=ssout$ageselex %>% filter(Yr==yr&Factor=="bodywt"&Fleet %in% c(1:26))
+  #order by fleet and season as catch at age
+  Wage2 = Wage[order(Wage$Fleet, Wage$Seas),]
+  #Calculate Biomass at age
+  Curyage = Curcage[,c(10:30)]*Wage2[,c(8:28)]
+  Yage = cbind(Wage2[,c(2:4)],Curyage)
+  
+  #Compute current total catch and catch per fleet segment
+  Ccur = sum((Yage %>% filter(Fleet %in% c(1:23)))[,c(4:24)])
+  CcurWs = sum((Yage %>% filter(Fleet %in% c(8:10,12:16)))[,c(4:24)])+sum((Yage %>% filter(Fleet %in% c(11,17:19)))[,c(4:6)])
+  CcurWl = sum((Yage %>% filter(Fleet %in% c(1:7)))[,c(4:24)])+sum((Yage %>% filter(Fleet %in% c(11,17:19)))[,c(7:24)])
+  CcurE = sum((Yage %>% filter(Fleet %in% c(20:23)))[,c(4:24)])  
   
   #extract the F multiplier
   pattern = "Forecast_using_Fspr:"
@@ -42,122 +54,202 @@ HCR8_pbf_byfleet_f_25for <- function(ssout, dat, forf, yr, SSBtrs, SSBlim, Ftgt,
     Fm = fmult
     cage = catch_calc_f(ssout=ssout,yearsb=yrb,yearsf=yrf,ben=forf,fmult=fmult,ffraction=(Fm/fmult))
     
-    #sum across ages to get TAC by fleet and seas
-    cr = as.data.frame(cage %>% group_by(Fleet, Seas) %>% summarize(yield=sum(yield)))
-    
-    #add a fleet type factor
-    TAC_table = cr %>%
-      mutate(Ftype = case_when(
-        Fleet %in% c(20:23) ~ "EPO",
-        Fleet %in% c(8:10,12:16) ~ "WPOs",
-        Fleet %in% c(1:7) ~ "WPOl",
-        Fleet %in% c(11,17:19) ~ "WPOm",
-        Fleet %in% c(24:26) ~ "Disc"))
-    
-    #Ensure change in TAC is not more than 25% 
-    Ttot = sum(TAC_table$yield)
-    Cchange = (Ttot-Ctot)/Ctot
-    #compute catch ratios from TAC calculation
-    #need to ensure that these ratios, not those of catch current are used
-    Ccur$taccr=TAC_table$yield/sum(TAC_table$yield)
-    Ctot25p=Ctot*1.25
-    Ctot25n=Ctot*0.75
-    
-    #adds an implementation error - here it is the same across fleets.
-    #Note that discrds are already accounted for by the specific fleet, this is an implementaiton error in addition to that
-    #Note that when the catch is split back across fleet for input into the OM
-    #the error will already be included
-    #If the error differed by fleet, it should be included when the TAC is split across fleets
-    if (abs(Cchange) > 0.25 & Cchange > 0){
-      TAC_table$TAC_err = Ccur$taccr*Ctot25p*err
-    } else if (abs(Cchange) > 0.25 & Cchange < 0){
-      TAC_table$TAC_err = Ccur$taccr*Ctot25n*err
-    } else {
-      TAC_table$TAC_err = TAC_table$yield*err
-    }
-    
     #Computes the overall TAC and by area and large vs. small fish for WP
-    cage2 = cage %>%
-      mutate(Size = case_when(
-        Age %in% c(0:2) ~ "small",
-        Age %in% c(3:20) ~ "Large"))
+  #add a fleet type factor
+  cage2 = cage %>%
+    mutate(Size = case_when(
+      Age %in% c(0:2) ~ "small",
+      Age %in% c(3:20) ~ "Large"))
+  
+  #Calculate the potential TAC by fleet segment
+  Chcr = sum(cage2$yield[cage2$Fleet %in% c(1:23)])
+  ChcrWs = sum(cage2$yield[cage2$Fleet %in% c(8:10,12:16)])+sum(cage2$yield[cage2$Fleet %in% c(11,17:19)&cage2$Size=="small"])
+  ChcrWl = sum(cage2$yield[cage2$Fleet %in% c(1:7)])+sum(cage2$yield[cage2$Fleet %in% c(11,17:19)&cage2$Size=="Large"])
+  ChcrE = sum(cage2$yield[cage2$Fleet %in% c(20:23)])
+  
+  #compute the potential change in TAC by fleet segment
+  Cchange = (Chcr-Ccur)/Ccur
+  CchangeWs = (ChcrWs-CcurWs)/CcurWs
+  CchangeWl = (ChcrWl-CcurWl)/CcurWl
+  CchangeE = (ChcrE-CcurE)/CcurE
+  
+  #Turn current catch to long form
+  Yagel = gather(Yage, Age, Ycur, `0`:`20`, factor_key=TRUE)
+  #order in the same way as cage2
+  Yagel2 = Yagel[order(Yagel$Fleet, Yagel$Seas, Yagel$Age),]
+  
+  #add current catch column to cage2
+  cage2$Ycur = Yagel2$Ycur
+  
+  #Calculates the TAC by fleet and age if the HCR determined TAC has a change greater than tacl
+  if (tacl>0){
+  if (abs(CchangeWs) > (tacl/100) & CchangeWs > 0){
+    cage2$TAC[cage2$Fleet %in% c(8:10,12:16)]=cage2$Ycur[cage2$Fleet %in% c(8:10,12:16)]*(1+tacl/100)
+    cage2$TAC[cage2$Fleet %in% c(11,17:19)&cage2$Size=="small"]=cage2$Ycur[cage2$Fleet %in% c(11,17:19)&cage2$Size=="small"]*(1+tacl/100)
+  } else if (abs(CchangeWs) > (tacl/100) & CchangeWs < 0){
+    cage2$TAC[cage2$Fleet %in% c(8:10,12:16)]=cage2$Ycur[cage2$Fleet %in% c(8:10,12:16)]*(1-tacl/100)
+    cage2$TAC[cage2$Fleet %in% c(11,17:19)&cage2$Size=="small"]=cage2$Ycur[cage2$Fleet %in% c(11,17:19)&cage2$Size=="small"]*(1-tacl/100)
+  } else {
+    cage2$TAC[cage2$Fleet %in% c(8:10,12:16)]=cage2$yield[cage2$Fleet %in% c(8:10,12:16)]
+    cage2$TAC[cage2$Fleet %in% c(11,17:19)&cage2$Size=="small"]=cage2$yield[cage2$Fleet %in% c(11,17:19)&cage2$Size=="small"]
+  }
     
-    #Note this is the TAC before the implementation error
-    TAC = sum(cage2$yield[cage2$Fleet %in% c(1:23)])
-    TACWs = sum(cage2$yield[cage2$Fleet %in% c(8:10,12:16)])+sum(cage2$yield[cage2$Fleet %in% c(11,17:19)&cage2$Size=="small"])
-    TACWl = sum(cage2$yield[cage2$Fleet %in% c(1:7)])+sum(cage2$yield[cage2$Fleet %in% c(11,17:19)&cage2$Size=="Large"])
-    TACE = sum(cage2$yield[cage2$Fleet %in% c(20:23)])
-    Discard = sum(cage2$yield[cage2$Fleet %in% c(24:26)]) #this are the discards assumed by the EM when figuring out the TAC
-    
-    TAC_dat = list(TAC=TAC, TACWs=TACWs, TACWl=TACWl, TACE=TACE, Discards=Discard, Ftarget=fmult, Fmultiplier=Fm, TAC_flt = TAC_table)
+  #do for Wl
+  if (abs(CchangeWl) > (tacl/100) & CchangeWl > 0){
+    cage2$TAC[cage2$Fleet %in% c(1:7)]=cage2$Ycur[cage2$Fleet %in% c(1:7)]*(1+tacl/100)
+    cage2$TAC[cage2$Fleet %in% c(11,17:19)&cage2$Size=="Large"]=cage2$Ycur[cage2$Fleet %in% c(11,17:19)&cage2$Size=="Large"]*(1+tacl/100)
+  } else if (abs(CchangeWl) > (tacl/100) & CchangeWl < 0){
+    cage2$TAC[cage2$Fleet %in% c(1:7)]=cage2$Ycur[cage2$Fleet %in% c(1:7)]*(1-tacl/100)
+    cage2$TAC[cage2$Fleet %in% c(11,17:19)&cage2$Size=="Large"]=cage2$Ycur[cage2$Fleet %in% c(11,17:19)&cage2$Size=="Large"]*(1-tacl/100)
+  } else {
+    cage2$TAC[cage2$Fleet %in% c(1:7)]=cage2$yield[cage2$Fleet %in% c(1:7)]
+    cage2$TAC[cage2$Fleet %in% c(11,17:19)&cage2$Size=="Large"]=cage2$yield[cage2$Fleet %in% c(11,17:19)&cage2$Size=="Large"]
+  }
+  
+  #do for E fleets
+  if (abs(CchangeE) > (tacl/100) & CchangeE > 0){
+    cage2$TAC[cage2$Fleet %in% c(20:23)]=cage2$Ycur[cage2$Fleet %in% c(20:23)]*(1+tacl/100)
+  } else if (abs(CchangeE) > (tacl/100) & CchangeE < 0){
+    cage2$TAC[cage2$Fleet %in% c(20:23)]=cage2$Ycur[cage2$Fleet %in% c(20:23)]*(1-tacl/100)
+  } else {
+    cage2$TAC[cage2$Fleet %in% c(20:23)]=cage2$yield[cage2$Fleet %in% c(20:23)]
+  }
+  
+  if (SSBlim > SSBcur){
+    cage2$TAC = cage2$yield
+  }
+  } else {
+  cage2$TAC = cage2$yield
+  }
+  #SET DISCARDS
+  #might be useful to have a "perfect management" run where discards are as set by management
+  #so if err=0 discards fleets are equal to yield, if not fleet 24 = 5% of all WPO fleets except 14, 
+  #F25 = 100% of F14 and F26 1.2% of F22
+  if (err==0){
+    cage2$TAC[cage2$Fleet %in% c(24:26)]=cage2$yield[cage2$Fleet %in% c(24:26)]
+  } else {
+    tempc=cage2 %>% filter(Fleet %in% c(1:13,15:19))
+    tempcs= tempc %>% group_by(Seas,Age) %>% summarize(TACl=sum(TAC))
+    cage2$TAC[cage2$Fleet %in% c(24)]=0.05*tempcs$TACl
+    cage2$TAC[cage2$Fleet %in% c(25)]=1*cage2$TAC[cage2$Fleet %in% c(14)]
+    cage2$TAC[cage2$Fleet %in% c(26)]=0.012*cage2$TAC[cage2$Fleet %in% c(22)]
+  }
+  
+  #Compute the TAC by fleet segment
+  TAC = sum(cage2$TAC[cage2$Fleet %in% c(1:23)])
+  TACWs = sum(cage2$TAC[cage2$Fleet %in% c(8:10,12:16)])+sum(cage2$TAC[cage2$Fleet %in% c(11,17:19)&cage2$Size=="small"])
+  TACWl = sum(cage2$TAC[cage2$Fleet %in% c(1:7)])+sum(cage2$TAC[cage2$Fleet %in% c(11,17:19)&cage2$Size=="Large"])
+  TACE = sum(cage2$TAC[cage2$Fleet %in% c(20:23)])
+  Discard = sum(cage2$TAC[cage2$Fleet %in% c(24:26)]) #this are the discards assumed by the EM when figuring out the TAC
+
+  #sum across ages to get TAC by fleet and seas
+  TAC_table = as.data.frame(cage2 %>% group_by(Fleet, Seas) %>% summarize(TAC=sum(TAC)))
+  
+  TAC_dat = list(TAC=TAC, TACWs=TACWs, TACWl=TACWl, TACE=TACE, Discards=Discard, Ftarget=fmult, Fmultiplier=Fm, TAC_flt = TAC_table)
+  
   } else if (SSBcur > SSBlim) {
     Fm = (fmult/SSBtrs)*SSBcur
     cage = catch_calc_f(ssout=ssout,yearsb=yrb,yearsf=yrf,ben=forf,fmult=fmult,ffraction=(Fm/fmult))
     
-    #sum across ages to get TAC by fleet and seas
-    cr = as.data.frame(cage %>% group_by(Fleet, Seas) %>% summarize(yield=sum(yield)))
-    
-    #add a fleet type factor
-    TAC_table = cr %>%
-      mutate(Ftype = case_when(
-        Fleet %in% c(20:23) ~ "EPO",
-        Fleet %in% c(8:10,12:16) ~ "WPOs",
-        Fleet %in% c(1:7) ~ "WPOl",
-        Fleet %in% c(11,17:19) ~ "WPOm",
-        Fleet %in% c(24:26) ~ "Disc"))
-    
-    #Ensure change in TAC is not more than 25% 
-    Ttot = sum(TAC_table$yield)
-    Cchange = (Ttot-Ctot)/Ctot
-    #compute catch ratios from TAC calculation
-    #need to ensure that these ratios, not those of catch current are used
-    Ccur$taccr=TAC_table$yield/sum(TAC_table$yield)
-    Ctot25p=Ctot*1.25
-    Ctot25n=Ctot*0.75
-    
-    #adds an implementation error - here it is the same across fleets.
-    #Note that discrds are already accounted for by the specific fleet, this is an implementaiton error in addition to that
-    #Note that when the catch is split back across fleet for input into the OM
-    #the error will already be included
-    #If the error differed by fleet, it should be included when the TAC is split across fleets
-    if (abs(Cchange) > 0.25 & Cchange > 0){
-      TAC_table$TAC_err = Ccur$taccr*Ctot25p*err
-    } else if (abs(Cchange) > 0.25 & Cchange < 0){
-      TAC_table$TAC_err = Ccur$taccr*Ctot25n*err
-    } else {
-      TAC_table$TAC_err = TAC_table$yield*err
-    }
-    
-    #Computes the overall TAC and by area and large vs. small fish for WP
-    #add a fleet type factor
-    cage2 = cage %>%
-      mutate(Size = case_when(
-        Age %in% c(0:2) ~ "small",
-        Age %in% c(3:20) ~ "Large"))
-    
-    #Note this is the TAC before the implementation error
-    TAC = sum(cage2$yield[cage2$Fleet %in% c(1:23)])
-    TACWs = sum(cage2$yield[cage2$Fleet %in% c(8:10,12:16)])+sum(cage2$yield[cage2$Fleet %in% c(11,17:19)&cage2$Size=="small"])
-    TACWl = sum(cage2$yield[cage2$Fleet %in% c(1:7)])+sum(cage2$yield[cage2$Fleet %in% c(11,17:19)&cage2$Size=="Large"])
-    TACE = sum(cage2$yield[cage2$Fleet %in% c(20:23)])
-    Discard = sum(cage2$yield[cage2$Fleet %in% c(24:26)]) #this are the discards assumed by the EM when figuring out the TAC
-    
-    TAC_dat = list(TAC=TAC, TACWs=TACWs, TACWl=TACWl, TACE=TACE, Discards=Discard, Ftarget=fmult, Fmultiplier=Fm, TAC_flt = TAC_table)
+#Computes the overall TAC and by area and large vs. small fish for WP
+  #add a fleet type factor
+  cage2 = cage %>%
+    mutate(Size = case_when(
+      Age %in% c(0:2) ~ "small",
+      Age %in% c(3:20) ~ "Large"))
+  
+  #Calculate the potential TAC by fleet segment
+  Chcr = sum(cage2$yield[cage2$Fleet %in% c(1:23)])
+  ChcrWs = sum(cage2$yield[cage2$Fleet %in% c(8:10,12:16)])+sum(cage2$yield[cage2$Fleet %in% c(11,17:19)&cage2$Size=="small"])
+  ChcrWl = sum(cage2$yield[cage2$Fleet %in% c(1:7)])+sum(cage2$yield[cage2$Fleet %in% c(11,17:19)&cage2$Size=="Large"])
+  ChcrE = sum(cage2$yield[cage2$Fleet %in% c(20:23)])
+  
+  #compute the potential change in TAC by fleet segment
+  Cchange = (Chcr-Ccur)/Ccur
+  CchangeWs = (ChcrWs-CcurWs)/CcurWs
+  CchangeWl = (ChcrWl-CcurWl)/CcurWl
+  CchangeE = (ChcrE-CcurE)/CcurE
+  
+  #Turn current catch to long form
+  Yagel = gather(Yage, Age, Ycur, `0`:`20`, factor_key=TRUE)
+  #order in the same way as cage2
+  Yagel2 = Yagel[order(Yagel$Fleet, Yagel$Seas, Yagel$Age),]
+  
+  #add current catch column to cage2
+  cage2$Ycur = Yagel2$Ycur
+  
+  #Calculates the TAC by fleet and age if the HCR determined TAC has a change greater than tacl
+  if (tacl>0){
+  if (abs(CchangeWs) > (tacl/100) & CchangeWs > 0){
+    cage2$TAC[cage2$Fleet %in% c(8:10,12:16)]=cage2$Ycur[cage2$Fleet %in% c(8:10,12:16)]*(1+tacl/100)
+    cage2$TAC[cage2$Fleet %in% c(11,17:19)&cage2$Size=="small"]=cage2$Ycur[cage2$Fleet %in% c(11,17:19)&cage2$Size=="small"]*(1+tacl/100)
+  } else if (abs(CchangeWs) > (tacl/100) & CchangeWs < 0){
+    cage2$TAC[cage2$Fleet %in% c(8:10,12:16)]=cage2$Ycur[cage2$Fleet %in% c(8:10,12:16)]*(1-tacl/100)
+    cage2$TAC[cage2$Fleet %in% c(11,17:19)&cage2$Size=="small"]=cage2$Ycur[cage2$Fleet %in% c(11,17:19)&cage2$Size=="small"]*(1-tacl/100)
   } else {
-    cr = Cmin
+    cage2$TAC[cage2$Fleet %in% c(8:10,12:16)]=cage2$yield[cage2$Fleet %in% c(8:10,12:16)]
+    cage2$TAC[cage2$Fleet %in% c(11,17:19)&cage2$Size=="small"]=cage2$yield[cage2$Fleet %in% c(11,17:19)&cage2$Size=="small"]
+  }
+    
+  #do for Wl
+  if (abs(CchangeWl) > (tacl/100) & CchangeWl > 0){
+    cage2$TAC[cage2$Fleet %in% c(1:7)]=cage2$Ycur[cage2$Fleet %in% c(1:7)]*(1+tacl/100)
+    cage2$TAC[cage2$Fleet %in% c(11,17:19)&cage2$Size=="Large"]=cage2$Ycur[cage2$Fleet %in% c(11,17:19)&cage2$Size=="Large"]*(1+tacl/100)
+  } else if (abs(CchangeWl) > (tacl/100) & CchangeWl < 0){
+    cage2$TAC[cage2$Fleet %in% c(1:7)]=cage2$Ycur[cage2$Fleet %in% c(1:7)]*(1-tacl/100)
+    cage2$TAC[cage2$Fleet %in% c(11,17:19)&cage2$Size=="Large"]=cage2$Ycur[cage2$Fleet %in% c(11,17:19)&cage2$Size=="Large"]*(1-tacl/100)
+  } else {
+    cage2$TAC[cage2$Fleet %in% c(1:7)]=cage2$yield[cage2$Fleet %in% c(1:7)]
+    cage2$TAC[cage2$Fleet %in% c(11,17:19)&cage2$Size=="Large"]=cage2$yield[cage2$Fleet %in% c(11,17:19)&cage2$Size=="Large"]
+  }
+  
+  #do for E fleets
+  if (abs(CchangeE) > (tacl/100) & CchangeE > 0){
+    cage2$TAC[cage2$Fleet %in% c(20:23)]=cage2$Ycur[cage2$Fleet %in% c(20:23)]*(1+tacl/100)
+  } else if (abs(CchangeE) > (tacl/100) & CchangeE < 0){
+    cage2$TAC[cage2$Fleet %in% c(20:23)]=cage2$Ycur[cage2$Fleet %in% c(20:23)]*(1-tacl/100)
+  } else {
+    cage2$TAC[cage2$Fleet %in% c(20:23)]=cage2$yield[cage2$Fleet %in% c(20:23)]
+  }
+  
+  if (SSBlim > SSBcur){
+    cage2$TAC = cage2$yield
+  }
+  } else {
+  cage2$TAC = cage2$yield
+  }
+  #SET DISCARDS
+  #might be useful to have a "perfect management" run where discards are as set by management
+  #so if err=0 discards fleets are equal to yield, if not fleet 24 = 5% of all WPO fleets except 14, 
+  #F25 = 100% of F14 and F26 1.2% of F22
+  if (err==0){
+    cage2$TAC[cage2$Fleet %in% c(24:26)]=cage2$yield[cage2$Fleet %in% c(24:26)]
+  } else {
+    tempc=cage2 %>% filter(Fleet %in% c(1:13,15:19))
+    tempcs= tempc %>% group_by(Seas,Age) %>% summarize(TACl=sum(TAC))
+    cage2$TAC[cage2$Fleet %in% c(24)]=0.05*tempcs$TACl
+    cage2$TAC[cage2$Fleet %in% c(25)]=1*cage2$TAC[cage2$Fleet %in% c(14)]
+    cage2$TAC[cage2$Fleet %in% c(26)]=0.012*cage2$TAC[cage2$Fleet %in% c(22)]
+  }
+  
+  #Compute the TAC by fleet segment
+  TAC = sum(cage2$TAC[cage2$Fleet %in% c(1:23)])
+  TACWs = sum(cage2$TAC[cage2$Fleet %in% c(8:10,12:16)])+sum(cage2$TAC[cage2$Fleet %in% c(11,17:19)&cage2$Size=="small"])
+  TACWl = sum(cage2$TAC[cage2$Fleet %in% c(1:7)])+sum(cage2$TAC[cage2$Fleet %in% c(11,17:19)&cage2$Size=="Large"])
+  TACE = sum(cage2$TAC[cage2$Fleet %in% c(20:23)])
+  Discard = sum(cage2$TAC[cage2$Fleet %in% c(24:26)]) #this are the discards assumed by the EM when figuring out the TAC
 
-    #add a fleet type factor
-    TAC_table = cr %>%
-      mutate(Ftype = case_when(
-        Fleet %in% c(20:23) ~ "EPO",
-        Fleet %in% c(8:10,12:16) ~ "WPOs",
-        Fleet %in% c(1:7) ~ "WPOl",
-        Fleet %in% c(11,17:19) ~ "WPOm",
-        Fleet %in% c(24:26) ~ "Disc"))
+  #sum across ages to get TAC by fleet and seas
+  TAC_table = as.data.frame(cage2 %>% group_by(Fleet, Seas) %>% summarize(TAC=sum(TAC)))
+  
+  TAC_dat = list(TAC=TAC, TACWs=TACWs, TACWl=TACWl, TACE=TACE, Discards=Discard, Ftarget=fmult, Fmultiplier=Fm, TAC_flt = TAC_table)
+
+  } else {
+    TAC_table = Cmin #this is a table with the catch by fleet set by the old CMM plus the catches for the rec and discard fleets
+
+    names(TAC_table)[3] = "TAC"
     
-    TAC_table$TAC_err = TAC_table$yield*err
-    
-    TAC_dat = list(TAC=16294, TACWs=4145, TACWl=7171, TACE=4978, Discards=965.3568, Ftarget=fmult, Fmultiplier=Fm, TAC_flt = TAC_table)
+    TAC_dat = list(TAC=16294, TACWs=4725, TACWl=6591, TACE=4978, Discards=965.5956, Ftarget=fmult, Fmultiplier=Fm, TAC_flt = TAC_table)
     
   }
   
