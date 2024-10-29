@@ -35,30 +35,30 @@ for (j in 1:length(hcrnumv)){
     
     #only extract data if EM completed
     
-    if ("outlist.txt" %in% itr_f == TRUE){
+    if ("cablist.txt" %in% itr_f == TRUE){
       itrn = c(itrn,itr)
     }
   }
   
   itrn = itrn[-1]
   ind = seq(1,(length(itrn)*23), by = 23)
-  smat = matrix(NaN, nrow = (length(itrn)*23), ncol = 49)
+  smat = matrix(NaN, nrow = (length(itrn)*23), ncol = 178)
   smat = as.data.frame(smat)
   
   
   for (itr in 1:length(itrn)) {
-    for (c in 1:48){
+    for (c in 1:177){
       #import simulation data fo reach iteration
-      dat= read.table(paste(pdir,hs, hcr, scn, itrn[itr],"/outlist.txt", sep =""))
+      dat= read.table(paste(pdir,hs, hcr, scn, itrn[itr],"/cablist.txt", sep =""))
       smat[ind[itr]:(ind[itr]+22), ] = dat
     }
     #add a column to specify the iteration
-    smat[ind[itr]:(ind[itr]+22), 49] = rep(itrn[itr], 23)
+    smat[ind[itr]:(ind[itr]+22), 178] = rep(itrn[itr], 23)
   }
   
   names(smat) = c(names(dat),"itr")
   
   #save output to file
-  write.table(smat, paste(pdir,hs,hcr, scn, "/outmat",hsnum,hcrnum,snum,".txt", sep =""))
+  write.table(smat, paste(pdir,hs,hcr, scn, "/cabmat",hsnum,hcrnum,snum,".txt", sep =""))
   
 }
