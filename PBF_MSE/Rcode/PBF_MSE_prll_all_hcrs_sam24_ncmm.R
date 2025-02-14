@@ -95,30 +95,6 @@ cl= makeCluster(no_cores)
 registerDoParallel(cl)
 
 #Set the HCR
-hcrnum= 3
-
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs1_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.15,sa=1,Fmin=0.10,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25)}
-
-#terminate cluster
-stopCluster(cl)
-
-#Initiate cluster
-cl= makeCluster(no_cores)
-registerDoParallel(cl)
-
-#Set the HCR
-hcrnum= 4
-
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs1_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.25, Blim = 0.15,sa=1,Fmin=0.10,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25)}
-
-#terminate cluster
-stopCluster(cl)
-
-#Initiate cluster
-cl= makeCluster(no_cores)
-registerDoParallel(cl)
-
-#Set the HCR
 hcrnum= 5
 
 foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs1_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.25, Blim = 0.20,sa=1,Fmin=0.10,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25)}
@@ -133,31 +109,7 @@ registerDoParallel(cl)
 #Set the HCR
 hcrnum= 6
 
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs1_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.10,sa=1,Fmin=0.10,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25)}
-
-#terminate cluster
-stopCluster(cl)
-
-#Initiate cluster
-cl= makeCluster(no_cores)
-registerDoParallel(cl)
-
-#Set the HCR
-hcrnum= 7
-
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs1_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.10,sa=1,Fmin=0.10,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25)}
-
-#terminate cluster
-stopCluster(cl)
-
-#Initiate cluster
-cl= makeCluster(no_cores)
-registerDoParallel(cl)
-
-#Set the HCR
-hcrnum= 11
-
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs1_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.15, Blim = 0.077,sa=1,Fmin=0.10,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs1_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.43,sa=1,Fmin=0.10,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25)}
 
 #terminate cluster
 stopCluster(cl)
@@ -169,20 +121,9 @@ registerDoParallel(cl)
 #Set the HCR
 hcrnum= 12
 
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs1_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.077,sa=1,Fmin=0.10,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs1_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.077,sa=1,Fmin=0.05,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25)}
 
 stopCluster(cl)
-
-#Initiate cluster
-#cl= makeCluster(no_cores)
-#registerDoParallel(cl)
-
-#Set the HCR
-#hcrnum=8
-#Run the MSE code for specified hcr
-#foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2', 'tidyverse')) %dopar% { PBF_MSE_hs1_hcr8_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.20,sa=1, lag=1, obse=3, aspm = "aspmr-f1f3", yfor = c(2015:2022), tacl=25)}
-
-#stopCluster(cl)
 
 #Initiate cluster
 cl= makeCluster(no_cores)
@@ -207,5 +148,16 @@ hcrnum= 10
 foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs2_910_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.15,sa=1,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25)}
 
 stopCluster(cl)
+
+#Initiate cluster
+#cl= makeCluster(no_cores)
+#registerDoParallel(cl)
+
+#Set the HCR
+#hcrnum=8
+#Run the MSE code for specified hcr
+#foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2', 'tidyverse')) %dopar% { PBF_MSE_hs1_hcr8_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.20,sa=1, lag=1, obse=3, aspm = "aspmr-f1f3", yfor = c(2015:2022), tacl=25)}
+
+#stopCluster(cl)
 scnnum
 hcrnum
