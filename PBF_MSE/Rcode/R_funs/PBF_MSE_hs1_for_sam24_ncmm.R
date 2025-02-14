@@ -39,15 +39,16 @@ scn = paste(scnnum, "/", sep = "")
 scnw = paste(scnnum, "\\", sep = "")
 
 #Specify parent directories path 
-#pdir = "D:/Desiree/PBF_MSE/"
-#pwin = "D:\\Desiree\\PBF_MSE\\"
-pdir = "C:/Users/desiree.tommasi/Documents/Bluefin/Github/PBF_MSE_main/PBF_MSE/"
-pwin = "C:\\Users\\desiree.tommasi\\Documents\\Bluefin\\Github\\PBF_MSE_main\\PBF_MSE\\"
+pdir = "J:/Desiree/PBF_MSE/"
+pwin = "J:\\Desiree\\PBF_MSE\\"
+#pdir = "C:/Users/desiree.tommasi/Documents/Bluefin/Github/PBF_MSE_main/PBF_MSE/"
+#pwin = "C:\\Users\\desiree.tommasi\\Documents\\Bluefin\\Github\\PBF_MSE_main\\PBF_MSE\\"
 
 
 #Specify the path of conditioned initial OM
 #sdir = "D:/Desiree/PBF_MSE/Condition/"
-sdir = "C:/Users/desiree.tommasi/Documents/Bluefin/Github/PBF_MSE_main/PBF_MSE/Condition/"
+sdir = paste0(pdir, "Condition\\")
+#sdir = "C:/Users/desiree.tommasi/Documents/Bluefin/Github/PBF_MSE_main/PBF_MSE/Condition/"
 
 #Specify vectors where to save output (output is from OM unless otherwise specified) for the future simulation years
 Rdat = 1:(length(asmt_t)*tasmt) # current recruits
@@ -71,6 +72,10 @@ D_em = 1:(length(asmt_t)*tasmt)
 SPR_em = 1:(length(asmt_t)*tasmt)
 Btot_em = 1:(length(asmt_t)*tasmt)
 C_em = 1:(length(asmt_t)*tasmt)
+
+#Create directory
+dir.create(paste0(pdir, hs, hcr))
+dir.create(paste0(pdir, hs, hcr, scn))
 
 #set working directory 
 setwd(paste(pdir,hs, hcr, scn, sep = ""))
@@ -175,11 +180,7 @@ for (tstep in 1:length(asmt_t)){
     
     #Generate TAC based on current harvest control rule
     #specify years over which to compute biology (yrb) and exploitation pattern (yrf)
-    if (tacl>0){
-       TAC_mat = HCR1a_pbf_byfleet_f_25for(ssout=om_out, dat = SPRmat, forf=ben, yr=yr_end, SSBtrs=ssb_thr, SSBlim=ssb_lim, err=1, Fmin=Fmin,hs=hs,hcr=hcr,scn=scn,itr=itr,tstep=tstep,yrb=c(2002:2004),yrf=yfor,tacl=tacl)
-    } else{
-      TAC_mat = HCR1a_pbf_byfleet_f(ssout=om_out, dat = SPRmat, forf=ben, yr=yr_end, SSBtrs=ssb_thr, SSBlim=ssb_lim, err=1, Fmin=Fmin,hs=hs,hcr=hcr,scn=scn,itr=itr,tstep=tstep,yrb=c(2002:2004),yrf=yfor)
-    }
+    TAC_mat = HCR1a_pbf_byfleet_f_25for(ssout=om_out, dat = SPRmat, forf=ben, yr=yr_end, SSBtrs=ssb_thr, SSBlim=ssb_lim, err=1, Fmin=Fmin,hs=hs,hcr=hcr,scn=scn,itr=itr,tstep=tstep,yrb=c(2002:2004),yrf=yfor,tacl=tacl, TACdt=TACdt,TACEdt=TACEdt,TACWldt=TACWldt,TACWsdt=TACWsdt, TACmat=TACmat)
     
     #Save the TAC
     file_tac = paste(pdir, hs, hcr, scn, itr,"/TAC",(tstep+1),".RData", sep = "")
@@ -279,11 +280,7 @@ for (tstep in 1:length(asmt_t)){
     
     #Generate TAC based on current harvest control rule
     #specify years over which to compute biology (yrb) and exploitation pattern (yrf)
-    if (tacl>0){
-      TAC_mat = HCR1a_pbf_byfleet_f_25for(ssout=em_out, dat = SPRmat, forf=ben, yr=yr_end, SSBtrs=ssb_thr, SSBlim=ssb_lim, err=1, Fmin=Fmin,hs=hs,hcr=hcr,scn=scn,itr=itr,tstep=tstep,yrb=c(2002:2004),yrf=yfor,tacl=tacl)
-    } else{
-      TAC_mat = HCR1a_pbf_byfleet_f(ssout=em_out, dat = SPRmat, forf=ben, yr=yr_end, SSBtrs=ssb_thr, SSBlim=ssb_lim, err=1, Fmin=Fmin,hs=hs,hcr=hcr,scn=scn,itr=itr,tstep=tstep,yrb=c(2002:2004),yrf=yfor)
-    }
+    TAC_mat = HCR1a_pbf_byfleet_f_25for(ssout=em_out, dat = SPRmat, forf=ben, yr=yr_end, SSBtrs=ssb_thr, SSBlim=ssb_lim, err=1, Fmin=Fmin,hs=hs,hcr=hcr,scn=scn,itr=itr,tstep=tstep,yrb=c(2002:2004),yrf=yfor,tacl=tacl, TACdt=TACdt,TACEdt=TACEdt,TACWldt=TACWldt,TACWsdt=TACWsdt, TACmat=TACmat)
     
     #Save the TAC
     file_tac = paste(pdir, hs, hcr, scn, itr,"/TAC",(tstep+1),".RData", sep = "")

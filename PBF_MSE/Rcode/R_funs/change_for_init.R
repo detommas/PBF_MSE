@@ -37,7 +37,7 @@ change_for_init <- function(ss_file_in, ss_file_out, t_asmt, yfor){
   om_for_new$Yinit=om_for$Yinit + t_asmt -1
   
   #Write a stock synthesis data file from the mse_dat list object
-  SS_writeforecast(om_for_new, ss_file_out)
+  SS_writeforecast(om_for_new, ss_file_out, overwrite = TRUE)
   
 }
   

@@ -18,7 +18,7 @@
 #' @return A modified dat file.
 #' @author Desiree Tommasi
 
-change_dat_cpue_boot_adj <- function(ss_file_in, ss_file_out, nrep, cdat_new, cdat_new2, tstep){
+change_dat_cpue_boot_adj_s1 <- function(ss_file_in, ss_file_out, nrep, cdat_new, cdat_new2, tstep){
   
   #read in data file from previous assessment period
   om_dat = SS_readdat(ss_file_in)
@@ -60,7 +60,7 @@ change_dat_cpue_boot_adj <- function(ss_file_in, ss_file_out, nrep, cdat_new, cd
   #so need to change the second heading to seas
   names(cpue31)[2]="seas"
   names(cpue_old)[2]="seas"
-
+  
   #Add CPUE dummy data for the additional future years of this time step
   #Note that the SE used here was the one in the 2020 assessment. 
   #This can be increased/decreased to change the observation error
@@ -80,14 +80,13 @@ change_dat_cpue_boot_adj <- function(ss_file_in, ss_file_out, nrep, cdat_new, cd
   #So in this case the comps can be more informative than for any average year
   #Nsamp can be changed to increase/decrease the observation error
   len_old = om_dat$sizefreq_data_list
-  
   #To address bootstrapping bias all the effective sample sizes need to be multiplied by 10 based on the procedure 4  
   #in ISC21/PBFWG-1/07 written by H. Lee
   #Only do this for the first time step as they woudl have been already adjusted in the following time steps
   if (tstep == 1){
   for (j in 1:23){
     len_old[[j]]$Nsamp=len_old[[j]]$Nsamp*10
-	names(len_old[[j]])[1:4]=c("Method","Yr","Seas","FltSvy")
+    names(len_old[[j]])[1:4]=c("Method","Yr","Seas","FltSvy")
   }
   }
   for (j in 1:23){

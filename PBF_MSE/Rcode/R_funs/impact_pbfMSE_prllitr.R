@@ -16,7 +16,7 @@
 
 impact_pbfMSE_prllitr <- function(pdir, hs, hcr,scn, itr,tstep,ssdir,idat,indx){
 
-  itr_d= paste(pdir, hs, hcr, scn, itr, "/",tstep,"/OM",sep = "")
+  itr_d= paste(pdir, hs, hcr, scn, itr, "/",tstep,"/OM/",sep = "")
   imat = impact_calc_h1(Dir=itr_d, ssDir=ssdir)
 
 }

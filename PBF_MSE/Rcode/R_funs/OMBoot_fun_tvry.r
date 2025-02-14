@@ -138,7 +138,7 @@ OMBoot_fun_tvry <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
   
   #write new starter file
   path_start = paste(pdir, hs, hcr, scn, itr,"/",tstep,"/Boot/",sep="")
-  SS_writestarter(starter_dat, path_start)
+  SS_writestarter(starter_dat, path_start, overwrite = TRUE)
   
 #*************************RUN THE BOOTSTRAP MODEL*************************************
   

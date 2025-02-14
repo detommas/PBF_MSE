@@ -19,7 +19,7 @@
 
 #' @author Desiree Tommasi
 
-OM_fun_tvry_adj_lag <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt, rec_devs, sdev, lag,yfor){
+OM_fun_tvry_adj_lag_s1 <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt, rec_devs, sdev, lag,yfor){
  
 #*****************************CREATE DAT FILE*******************************************   
   #The OM catch data corresponds to the bootstrap data with no error
@@ -48,7 +48,7 @@ OM_fun_tvry_adj_lag <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin,
     boot_new$CPUE=boot_old$CPUE[which(boot_old$CPUE$year<=boot_new$endyr),]
     for (j in 1:23){
       sdat=boot_old$sizefreq_data_list[[j]]
-	  names(sdat)[2]="Yr"
+      names(sdat)[2]="Yr"
       boot_new$sizefreq_data_list[[j]]=sdat %>% filter(Yr<=boot_new$endyr)
       boot_new$Nobs_per_method[j]=dim(boot_new$sizefreq_data_list[[j]])[1]
       #need to change the effective sample size of the new bootstrap data back to original
@@ -84,11 +84,11 @@ OM_fun_tvry_adj_lag <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin,
     
     sf_new = sf_old
     for (j in c(1:13,18,21,22)){
-	#ensure headings compatible
+      #ensure headings compatible
       names(sf_dat[[j]])[2]="Yr"
       names(sf_old[[j]])[2]="Yr"
       names(sf_new[[j]])[2]="Yr"
-	  
+      
       sf_add = sf_dat[[j]] %>% filter (Yr %in% c((boot_dat$endyr-tasmt-lag+1):endYear))
       sf_new[[j]]=rbind(sf_old[[j]],sf_add)
     }
@@ -110,7 +110,7 @@ OM_fun_tvry_adj_lag <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin,
   boot_new$mincomp_per_method[11]=0.01
   
   path_dat = paste(pdir, hs, hcr, scn, itr,"/",tstep,"/OMlag/OMdat.ss",sep="")
-  SS_writedat(boot_new, path_dat, overwrite = TRUE)
+  SS_writedat(boot_new, path_dat)
   
   #*****************************MODIFY FORECAST FILE****************
   if (tstep == 1){
@@ -148,7 +148,7 @@ OM_fun_tvry_adj_lag <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin,
   
   file_out= paste(pdir, hs, hcr, scn, itr,"/", tstep,"/OMlag",sep="")
   #Write a stock synthesis data file from the mse_dat list object
-  SS_writeforecast(om_for_new, file_out, overwrite = TRUE)
+  SS_writeforecast(om_for_new, file_out)
   
   #*****************************CHANGE PAR FILE**********************************************
   #include recruitment and selectivity deviations for future time steps
@@ -208,14 +208,13 @@ OM_fun_tvry_adj_lag <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin,
   
   #write new starter file
   path_start = paste(pdir, hs, hcr, scn, itr,"/",tstep,"/OMlag/",sep="")
-  SS_writestarter(starter_dat, path_start, overwrite = TRUE)
+  SS_writestarter(starter_dat, path_start)
   
 #*************************RUN THE OM MODEL*************************************
   
   #generate the .bat file to run the model
   Path = paste(pdir, hs, hcr, scn, itr, "/", tstep,"/OMlag/", sep="")
   filename_om  <-paste(Path,"ssnohess.bat",sep="")
-  #batchtext_om = paste(pwin,"SS_model\\ss -nohess",sep="")
   batchtext_om = paste(pwin,"SS_model\\ss -maxfn 0 -phase 50 -nohess",sep="")
   writeLines(batchtext_om,filename_om)
   

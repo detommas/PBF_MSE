@@ -36,13 +36,13 @@ scn = paste(scnnum, "/", sep = "")
 scnw = paste(scnnum, "\\", sep = "")
 
 #Specify parent directories path 
-pdir = "D:/Desiree/PBF_MSE/"
-pwin = "D:\\Desiree\\PBF_MSE\\"
+pdir = "J:/Desiree/PBF_MSE/"
+pwin = "J:\\Desiree\\PBF_MSE\\"
 #pdir = "C:/Users/desiree.tommasi/Documents/Bluefin/PBF_MSE/"
 #pwin = "C:\\Users\\desiree.tommasi\\Documents\\Bluefin\\PBF_MSE\\"
 
 #Specify the path of conditioned initial OM
-sdir = "D:/Desiree/PBF_MSE/Condition/"
+sdir = "J:/Desiree/PBF_MSE/Condition/"
 #sdir = "C:/Users/desiree.tommasi/Documents/Bluefin/PBF_MSE/Condition/"
 
 #Specify vectors where to save output (output is from OM unless otherwise specified) for the future simulation years
@@ -67,6 +67,9 @@ D_em = 1:(length(asmt_t)*tasmt)
 SPR_em = 1:(length(asmt_t)*tasmt)
 Btot_em = 1:(length(asmt_t)*tasmt)
 C_em = 1:(length(asmt_t)*tasmt)
+
+#Create directory
+dir.create(paste0(pdir, hs, hcr, scn))
 
 #set working directory 
 setwd(paste(pdir,hs, hcr, scn, sep = ""))
@@ -115,7 +118,7 @@ for (tstep in 1:length(asmt_t)){
     TACdat = TACWs+TACWl+TACE
     
     new_cdat=TACmat$TAC_flt
-    names(new_cdat)[5]="catch"
+    names(new_cdat)[3]="catch"
   }
   
   #Record the TAC - set in the previous time step but effective for the current
@@ -142,7 +145,7 @@ for (tstep in 1:length(asmt_t)){
     OM_fun_tvry_adj(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt)
     #create another OM that uses lagged data 
     if (lag>0){
-      OM_fun_tvry_adj_lag(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt, rec_devs, sdev, lag=lag, yfor=yfor)
+      OM_fun_tvry_adj_lag(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt, rec_devs,sdev, lag=lag,yfor=yfor)
     }
     
     #*********************************************************************************
@@ -169,12 +172,8 @@ for (tstep in 1:length(asmt_t)){
     
     #Generate TAC based on current harvest control rule
     #specify years over which to compute biology (yrb) and exploitation pattern (yrf)
-    if (tacl>0){
-      TAC_mat = HCR2_pbf_byfleet_f_25for(ssout=om_out, dat = SPRmat, forf=ben, yr=yr_end, SSBtrs=ssb_trs, err=1, hs=hs,hcr=hcr,scn=scn,itr=itr,tstep=tstep,yrb=c(2002:2004),yrf=yfor, tacl=tacl)
-    } else{
-      TAC_mat = HCR2_pbf_byfleet_f(ssout=om_out, dat = SPRmat, forf=ben, yr=yr_end, SSBtrs=ssb_trs, err=1, hs=hs,hcr=hcr,scn=scn,itr=itr,tstep=tstep,yrb=c(2002:2004),yrf=yfor)
-    }
-    
+    TAC_mat = HCR2_pbf_byfleet_f_25for(ssout=om_out, dat = SPRmat, forf=ben, yr=yr_end, SSBtrs=ssb_trs, err=1, hs=hs,hcr=hcr,scn=scn,itr=itr,tstep=tstep,yrb=c(2002:2004),yrf=yfor, tacl=tacl,TACdt=TACdt,TACEdt=TACEdt,TACWldt=TACWldt,TACWsdt=TACWsdt, TACmat=TACmat)
+ 
     #Save the TAC
     file_tac = paste(pdir, hs, hcr, scn, itr,"/TAC",(tstep+1),".RData", sep = "")
     saveRDS(TAC_mat, file_tac)
@@ -237,11 +236,14 @@ for (tstep in 1:length(asmt_t)){
     
     #****************************************************************************
     #Step 3: Generate files for operating model
-    OM_fun_tvry_adj(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt, rec_devs, sdev, lag=lag, yfor=yfor)
-    
+    OM_fun_tvry_adj(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt)
+    #create another OM that uses lagged data 
+    if (lag>0){
+      OM_fun_tvry_adj_lag(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt, rec_devs,sdev, lag=lag,yfor=yfor)
+    }    
     #*****************************************************************************************
     #Step 4: Run the estimation model , can choose to run with (datatype =3) or without observation error (datatype=2)
-    EM_fun_adj(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, datatype=obse, lag=lag, aspm=aspm, yfor=yfor)
+    EM_fun_adj(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt, datatype=obse, lag=lag, aspm=aspm, yfor=yfor)
     
     #****************************************************************************
     #Step 5: Compute TAC using EM model output
@@ -262,12 +264,8 @@ for (tstep in 1:length(asmt_t)){
     SPRmat = em_out$sprseries
     
     #Generate TAC based on current harvest control rule
-    if (tacl>0){
-      TAC_mat = HCR2_pbf_byfleet_f_25for(ssout=em_out, dat = SPRmat, forf=ben, yr=yr_end, SSBtrs=ssb_trs, err=1, hs=hs,hcr=hcr,scn=scn,itr=itr,tstep=tstep,yrb=c(2002:2004),yrf=yfor, tacl=tacl)
-    } else{
-      TAC_mat = HCR2_pbf_byfleet_f(ssout=em_out, dat = SPRmat, forf=ben, yr=yr_end, SSBtrs=ssb_trs, err=1, hs=hs,hcr=hcr,scn=scn,itr=itr,tstep=tstep,yrb=c(2002:2004),yrf=yfor)
-    }
-    
+    TAC_mat = HCR2_pbf_byfleet_f_25for(ssout=em_out, dat = SPRmat, forf=ben, yr=yr_end, SSBtrs=ssb_trs, err=1, hs=hs,hcr=hcr,scn=scn,itr=itr,tstep=tstep,yrb=c(2002:2004),yrf=yfor, tacl=tacl,TACdt=TACdt,TACEdt=TACEdt,TACWldt=TACWldt,TACWsdt=TACWsdt, TACmat=TACmat)
+
     #Save the TAC
     file_tac = paste(pdir, hs, hcr, scn, itr,"/TAC",(tstep+1),".RData", sep = "")
     saveRDS(TAC_mat, file_tac)
@@ -280,6 +278,8 @@ for (tstep in 1:length(asmt_t)){
       SPB_em[(asmt_t[tstep]-1)] = SPRmat$SSB[(dim(SPRmat)[1]-1)]
       D_em[(asmt_t[tstep]-1)] = SPRmat$Deplete[(dim(SPRmat)[1]-1)]
       SPR_em[(asmt_t[tstep]-1)] = SPRmat$SPR[(dim(SPRmat)[1]-1)]
+      #ensure headings are compatible
+      names(SPRmat)[16]="Bio_Smry.1"
       Btot_em[(asmt_t[tstep]-1)] = SPRmat$Bio_Smry.1[(dim(SPRmat)[1]-1)] #Bio_Smry
       C_em[(asmt_t[tstep]-1)] = SPRmat$Retain_Catch[(dim(SPRmat)[1]-1)]
       
@@ -291,6 +291,8 @@ for (tstep in 1:length(asmt_t)){
       SPB_em[(asmt_t[tstep]-tasmt):(asmt_t[tstep]-1)] = SPRmat$SSB[(dim(SPRmat)[1]-tasmt):(dim(SPRmat)[1]-1)]
       D_em[(asmt_t[tstep]-tasmt):(asmt_t[tstep]-1)] = SPRmat$Deplete[(dim(SPRmat)[1]-tasmt):(dim(SPRmat)[1]-1)]
       SPR_em[(asmt_t[tstep]-tasmt):(asmt_t[tstep]-1)] = SPRmat$SPR[(dim(SPRmat)[1]-tasmt):(dim(SPRmat)[1]-1)]
+      #ensure headings are compatible
+      names(SPRmat)[16]="Bio_Smry.1"
       Btot_em[(asmt_t[tstep]-tasmt):(asmt_t[tstep]-1)] = SPRmat$Bio_Smry.1[(dim(SPRmat)[1]-tasmt):(dim(SPRmat)[1]-1)] #Bio_Smry
       C_em[(asmt_t[tstep]-tasmt):(asmt_t[tstep]-1)] = SPRmat$Retain_Catch[(dim(SPRmat)[1]-tasmt):(dim(SPRmat)[1]-1)]
     }
@@ -331,7 +333,9 @@ Rdat[1:((tasmt*tstep)-1)] = spr.om$Recruits[st:(length(spr.om$Recruits)-1)]
 SPBdat[1:((tasmt*tstep)-1)] = spr.om$SSB[st:(length(spr.om$SSB)-1)]
 Ddat[1:((tasmt*tstep)-1)] = spr.om$Deplete[st:(length(spr.om$Deplete)-1)]
 SPRdat[1:((tasmt*tstep)-1)] = spr.om$SPR[st:(length(spr.om$SPR)-1)]
-Btot[1:((tasmt*tstep)-1)] = spr.om$Bio_Smry[st:(length(spr.om$SPR)-1)] #
+#ensure headings are compatible
+names(spr.om)[16]="Bio_Smry.1"
+Btot[1:((tasmt*tstep)-1)] = spr.om$Bio_Smry.1[st:(length(spr.om$SPR)-1)] #
 Tdat[1:((tasmt*tstep)-1)] = spr.om$Retain_Catch[st:(length(spr.om$SPR)-1)]
 Ftgt_om [1:((tasmt*tstep))] = rep(true_out$derived_quants$Value[which(true_out$derived_quants$Label == "annF_SPR")],(tasmt*tstep))
 B0dat_om [1:((tasmt*tstep))] = rep(spr.om$SSBzero[1],(tasmt*tstep))

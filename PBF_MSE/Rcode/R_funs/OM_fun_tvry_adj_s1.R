@@ -15,7 +15,7 @@
 #' 
 #' @author Desiree Tommasi
 
-OM_fun_tvry_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt){
+OM_fun_tvry_adj_s1 <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt){
  
 #*****************************CREATE DAT FILE*******************************************   
   #The OM catch data corresponds to the bootstrap data with no error
@@ -30,7 +30,6 @@ OM_fun_tvry_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
   
   #extract the data with no error from the bootstrap run
   boot_dat=SS_readdat(file = "data_expval.ss")
-  #boot_dat=SS_readdat(file = "data_boot_001.ss")
   
   #extract end year
   endYear = boot_dat$endyr
@@ -78,7 +77,6 @@ OM_fun_tvry_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
       names(sf_old[[j]])[2]="Yr"
       names(sf_new[[j]])[2]="Yr"
       
-      
       sf_add = sf_dat[[j]] %>% filter (Yr %in% c((endYear-tasmt+1):endYear))
       sf_new[[j]]=rbind(sf_old[[j]],sf_add)
     }
@@ -98,7 +96,7 @@ OM_fun_tvry_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
   boot_new$mincomp_per_method[11]=0.01
   
   path_dat = paste(pdir, hs, hcr, scn, itr,"/",tstep,"/OM/OMdat.ss",sep="")
-  SS_writedat(boot_new, path_dat, overwrite = TRUE)
+  SS_writedat(boot_new, path_dat)
   
 #*****************************COPY PAR, CTL, and FORECAST FILES FROM OM BOOT FOLDER**********************************************
   #Move to the Bootstrap model directory 
@@ -134,14 +132,13 @@ OM_fun_tvry_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
   
   #write new starter file
   path_start = paste(pdir, hs, hcr, scn, itr,"/",tstep,"/OM/",sep="")
-  SS_writestarter(starter_dat, path_start, overwrite = TRUE)
+  SS_writestarter(starter_dat, path_start)
   
 #*************************RUN THE OM MODEL*************************************
   
   #generate the .bat file to run the model
   Path = paste(pdir, hs, hcr, scn, itr, "/", tstep,"/OM/", sep="")
   filename_om  <-paste(Path,"ssnohess.bat",sep="")
-  #batchtext_om = paste(pwin,"SS_model\\ss -nohess",sep="")
   batchtext_om = paste(pwin,"SS_model\\ss -maxfn 0 -phase 50 -nohess",sep="")
   writeLines(batchtext_om,filename_om)
   

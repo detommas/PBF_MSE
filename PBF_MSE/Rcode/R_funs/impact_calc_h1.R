@@ -91,8 +91,10 @@ impact_calc_h1 <- function(Dir,ssDir){
       #set ctl file to not use initial F
       CtlDir <- paste0(paste0(Dir, step_name[step]), "/Boot.ctl")
       CtlFile <- readLines(CtlDir, warn = F)
-      initFl <- CtlFile[164]
-      CtlFile[164] <- paste("#",initFl)
+      if (scnn %in% c(2,9:10,14:21)){initFl <- CtlFile[163]
+      CtlFile[163] <- paste("#",initFl)} else if (scnn==1) {initFl <- CtlFile[164]
+      CtlFile[164] <- paste("#",initFl)} else {initFl <- CtlFile[165]
+      CtlFile[165] <- paste("#",initFl)}
       writeLines(CtlFile, CtlDir)
     } else {
       #create new dat file with 0 catch for selected fisheries
@@ -114,8 +116,10 @@ impact_calc_h1 <- function(Dir,ssDir){
       #set ctl file to not use initial F
       CtlDir <- paste0(paste0(Dir, step_name[step]), "/Boot.ctl")
       CtlFile <- readLines(CtlDir, warn = F)
-      initFl <- CtlFile[164]
-      CtlFile[164] <- paste("#",initFl)
+      if (scnn %in% c(2,9:10,14:21)){initFl <- CtlFile[163]
+      CtlFile[163] <- paste("#",initFl)} else if (scnn==1) {initFl <- CtlFile[164]
+      CtlFile[164] <- paste("#",initFl)} else {initFl <- CtlFile[165]
+      CtlFile[165] <- paste("#",initFl)}
       writeLines(CtlFile, CtlDir)
     }
     

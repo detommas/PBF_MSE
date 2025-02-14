@@ -15,15 +15,17 @@
 #' @param datatype specifies section of new datafile from which to extract,  2 = perfect data, 3 = data with error
 #' @param lag lag between data and assessment availbility and management 
 #' @param aspm aspm switch: = NULL (no ASPM, default),
-#'                            "ASPMR-f1f3f6f21" (ASPM-R w/ size & selectivities for F1JPN_LL(S4) & F3TWN_LLSouth & F21EPO_COMM(2002-) & F6JPN_TPS_SOJ),
-#'                            "ASPMR-f1f3f21"   (ASPM-R w/ size & selectivities for F1JPN_LL(S4) & F3TWN_LLSouth & F21EPO_COMM(2002-)),
-#'                            "ASPMR-f1f3"      (ASPM-R w/ size & selectivities for F1JPN_LL(S4) & F3TWN_LLSouth),
-#'                            "ASPMR-f3"        (ASPM-R w/ size & selectivities for F3TWN_LLSouth only)
+#'                            "ASPM",
+#'                            "ASPM-size" (w/ size for all fleets),
+#'                            "ASPMR" (ASPM-R),
+#'                            "ASPMR-size" (ASPM-R w/ size for all fleets),
+#'                            "ASPMR-sizef1f12" (ASPM-R w/size for all fleets, F1 & F12 selectivities),
+#'                            "ASPMR-f1f12" (ASPM-R w/ size & selectivities for F1 & F12)
 #' @param yfor years over which to compute the sel and relF for the forecast file
 #' 
 #' @author Desiree Tommasi and Norio Takahashi
 
-EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt, datatype, lag, aspm, yfor){
+EM_fun_adj_s1 <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt, datatype, lag, aspm, yfor){
  
 #*****************************CHANGE DAT FILE*******************************************   
   # Enter new catch data given the TAC into the PAR file
@@ -56,7 +58,6 @@ EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tst
     boot_new$CPUE=boot_old$CPUE[which(boot_old$CPUE$year<=boot_new$endyr),]
     for (j in c(1:23)){
       sdat=boot_old$sizefreq_data_list[[j]]
-      names(sdat)[2]="Yr"
       boot_new$sizefreq_data_list[[j]]=sdat %>% filter(Yr<=boot_new$endyr)
       boot_new$Nobs_per_method[j]=dim(boot_new$sizefreq_data_list[[j]])[1]
       #need to change the effective sample size of the new bootstrap data back to original
@@ -92,11 +93,6 @@ EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tst
     
     sf_new = sf_old
     for (j in c(1:13,18,21,22)){
-      #ensure headings compatible
-      names(sf_dat[[j]])[2]="Yr"
-      names(sf_old[[j]])[2]="Yr"
-      names(sf_new[[j]])[2]="Yr"
-    
       sf_add = sf_dat[[j]] %>% filter (Yr %in% c((boot_dat$endyr-tasmt-lag+1):endYear))
       sf_new[[j]]=rbind(sf_old[[j]],sf_add)
     }
@@ -161,7 +157,7 @@ EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tst
 #***************************CHANGE CTL FILE*************************************
   if(is.null(aspm)){ # not use ASPM option
     
-    ctl_in = paste(sdir, scn, "SAM/ctl_PBF_2024_0309_BC_qest.ss", sep = "")
+    ctl_in = paste(sdir, scn, "SAM/ctl_PBF_2024_0309_BC.ss", sep = "")
     
   } else { # use ASPM option
     
@@ -169,21 +165,18 @@ EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tst
     
     ctl_in <- switch(aspm,
                      # w/o size
-                     #"aspm"  = paste(sdir, scn, "SAM/control_simple_1719_2021_ASPM.ss", sep = ""),
-                     #"aspmr" = paste(sdir, scn, "SAM/control_simple_1719_2021_ASPMR.ss", sep = ""),
+                     "aspm"  = paste(sdir, scn, "SAM/control_simple_1719_2021_ASPM.ss", sep = ""),
+                     "aspmr" = paste(sdir, scn, "SAM/control_simple_1719_2021_ASPMR.ss", sep = ""),
                      # w/ size
-                     #"aspm-size"  = paste(sdir, scn, "SAM/control_simple_1719_2021_ASPM_size.ss", sep = ""),
-                     #"aspmr-size" = paste(sdir, scn, "SAM/control_simple_1719_2021_ASPMR_size.ss", sep = ""),
-                     #"aspmr-sizef1f12" = paste(sdir, scn, "SAM/control_simple_1719_2021_ASPMR_sizeF1F12.ss", sep = ""),
-                     "aspmr-f1f3f6f21" = paste(sdir, scn, "SAM/ctl_PBF_2024_0309_BC_qest_ASPMR_F1F3f6F21.ss", sep = ""),
-                     "aspmr-f1f3f21"   = paste(sdir, scn, "SAM/ctl_PBF_2024_0309_BC_qest_ASPMR_F1F3F21.ss"  , sep = ""),
-                     "aspmr-f1f3"      = paste(sdir, scn, "SAM/ctl_PBF_2024_0309_BC_qest_ASPMR_F1F3.ss"     , sep = ""),
-                     "aspmr-f3"        = paste(sdir, scn, "SAM/ctl_PBF_2024_0309_BC_qest_ASPMR_F3.ss"       , sep = "")
+                     "aspm-size"  = paste(sdir, scn, "SAM/control_simple_1719_2021_ASPM_size.ss", sep = ""),
+                     "aspmr-size" = paste(sdir, scn, "SAM/control_simple_1719_2021_ASPMR_size.ss", sep = ""),
+                     "aspmr-sizef1f12" = paste(sdir, scn, "SAM/control_simple_1719_2021_ASPMR_sizeF1F12.ss", sep = ""),
+                     "aspmr-f1f12" = paste(sdir, scn, "SAM/control_simple_1719_2021_ASPMR_F1F12.ss", sep = "")
     )
     
     if(is.null(ctl_in)){
-      ctl_in = paste(sdir, scn, "SAM/ctl_PBF_2024_0309_BC_qest_ASPMR_F1F3.ss", sep = "")
-      message("aspm argument is not correct, set to ASPMR-F1F3 anyway to continue....")
+      ctl_in = paste(sdir, scn, "SAM/control_simple_1719_2021_ASPM_F1F12.ss", sep = "")
+      message("aspm argument is not correct, set to ASPM anyway to continue....")
     }
     
   }
