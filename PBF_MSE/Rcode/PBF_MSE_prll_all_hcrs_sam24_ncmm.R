@@ -150,14 +150,14 @@ foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopa
 stopCluster(cl)
 
 #Initiate cluster
-#cl= makeCluster(no_cores)
-#registerDoParallel(cl)
+cl= makeCluster(no_cores)
+registerDoParallel(cl)
 
 #Set the HCR
-#hcrnum=8
+hcrnum=8
 #Run the MSE code for specified hcr
-#foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2', 'tidyverse')) %dopar% { PBF_MSE_hs1_hcr8_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.20,sa=1, lag=1, obse=3, aspm = "aspmr-f1f3", yfor = c(2015:2022), tacl=25)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2', 'tidyverse')) %dopar% { PBF_MSE_hs1_hcr8_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.20,sa=1, lag=1, obse=3, aspm = "aspmr-f1f3", yfor = c(2015:2022), tacl=25)}
 
-#stopCluster(cl)
+stopCluster(cl)
 scnnum
 hcrnum
