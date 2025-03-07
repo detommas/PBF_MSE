@@ -39,7 +39,7 @@ tasmt = 3
 asmt_t = seq(2, 23, by=tasmt)
 
 #import needed files
-#catch ratios by fleet and season for each of the fleet groups obtained by running the bluefin_om_base.R code 
+#catch by fleet and season for each of the fleet groups obtained by running the OMinit_catch.R code 
 ciom= read.csv(paste(pdir,"ciom.csv", sep = ""))
 ciom25= read.csv(paste(pdir,"ciom25.csv", sep = ""))
 #import minimum TAc for hcr 8 , which is set by the cmm
