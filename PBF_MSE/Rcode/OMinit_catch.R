@@ -13,13 +13,20 @@ bio24out=SS_output(bio24dir)
 #Extract the catch in biomass from the catch section of the report file for the above fleets
 exom = bio24out$catch
 
-#Fishing year 2023 catch will equal the Cal year 2023 July-Dec catch submitted by each country,
-#while we wait for data, here we set it to 2022 values
-c22= exom%>%filter(Yr==2022)
+c22om= exom%>%filter(Yr==2022)
 
 #create a data frame for input into om data file
 # num of rows is #of fleets * #of seas (26*4=104)
-c23om = data.frame(year=rep(2023,104),seas=c22$Seas,fleet=c22$Fleet,catch=c22$sel_bio,catch_se=rep(0.1,104))
+c22 = data.frame(year=rep(2023,104),seas=c22om$Seas,fleet=c22om$Fleet,catch=c22om$sel_bio,catch_se=rep(0.1,104))
+
+#Import the 2023 catch
+#this was taken from the dat_PBF_2024_0305_4MSE ss3 dat file provided by Fukudasan, with conversion from numbers to biomass
+#for fleets 7, 10, 14, and 22 based on FY2022 conversions from the 2024 stock assessment, see 2023s12_catchupdate.xlsx for details
+c23om= read.csv("C:/Users/desiree.tommasi/Documents/Bluefin/2024baseOM/2023catch.csv")
+
+#create a data frame for input into om data file
+# num of rows is #of fleets * #of seas (26*4=104)
+c23 = data.frame(year=rep(2023,104),seas=c23om$seas,fleet=c23om$fleet,catch=c23om$catch,catch_se=rep(0.1,104))
 
 #the FY 2024 catches will be set equal to the CMM for 2024 limit for seas 1 and 2
 #and to the CMM for 2025 limit for seas 3 and 4
@@ -89,8 +96,8 @@ jl252 = jl25-jl25*cmpl
 #and associated discards, fleets 22,23, 26, will be set 
 #equal to 2022 (2023 once data will be available)
 #Discards for the WPO fleet will be set to
-#5% of total jpn and Korean catch except penning fleets for fleet 24
-#5% of catch for penning (fleets 7,14) plus catches of fleet 10 - CHECK
+#5% of total jpn and Korean catch except penning fleet 14 for fleet 24
+#100% of catch for penning (fleets 14) for fleet 25
 
 #compute average catch ratio for WPO small fish, WPO large, WPO Mix and EPOcomm
 
@@ -160,16 +167,16 @@ ctepoc$c25 = ctepoc$cratio*epoc25
 ct2425=rbind(ctjl,ctjs,ctjm,ctcht,ctkr,ctepoc)
 
 #calculate total jpn/kr discards
-ctjd$c24=(sum((ct2425 %>% filter(Fleet %in% c(1,2,5:6,8:9,11:13,15:19)))$c24)*0.05)*ctjd$cratio
-ctjdf$c24=(sum((ct2425 %>% filter(Fleet %in% c(7,14)))$c24)*0.05+sum((ct2425 %>% filter(Fleet ==10))$c24))*ctjdf$cratio
-ctjd$c25=(sum((ct2425 %>% filter(Fleet %in% c(1,2,5:6,8:9,11:13,15:19)))$c25)*0.05)*ctjd$cratio
-ctjdf$c25=(sum((ct2425 %>% filter(Fleet %in% c(7,14)))$c25)*0.05+sum((ct2425 %>% filter(Fleet ==10))$c25))*ctjdf$cratio
+ctjd$c24=(sum((ct2425 %>% filter(Fleet %in% c(1,2,5:13,15:19)))$c24)*0.05)*ctjd$cratio
+ctjdf$c24=(sum((ct2425 %>% filter(Fleet %in% c(14)))$c24)*1)*ctjdf$cratio
+ctjd$c25=(sum((ct2425 %>% filter(Fleet %in% c(1,2,5:13,15:19)))$c25)*0.05)*ctjd$cratio
+ctjdf$c25=(sum((ct2425 %>% filter(Fleet %in% c(14)))$c25)*1)*ctjdf$cratio
 
 #create large data frame with discards
 cmat = rbind(ctjl,ctjs,ctjm,ctcht,ctkr,ctepoc,ctjd,ctjdf)
 
 #create a rec fleet data frame, same as FY2022
-rec = data.frame(Fleet=c(rep(22,4),rep(23,4),rep(26,4)),Seas=rep(c(1:4),3),catch=rep(NA,12),cratio=rep(NA,12),c24=c23om$catch[c23om$fleet %in% c(22,23,26)],c25=c23om$catch[c23om$fleet %in% c(22,23,26)])
+rec = data.frame(Fleet=c(rep(22,4),rep(23,4),rep(26,4)),Seas=rep(c(1:4),3),catch=rep(NA,12),cratio=rep(NA,12),c24=c22$catch[c22$fleet %in% c(22,23,26)],c25=c22$catch[c22$fleet %in% c(22,23,26)])
 #add the rec fleets set same as om23
 cmat2 = rbind(cmat,rec)
 #order by fleet and season
@@ -181,7 +188,7 @@ cmat3 = cmat2[order(cmat2$Fleet, cmat2$Seas),]
 #2025FY will have cMM for 2024 for s1,2 and then first TAC from within sim for S3,4
 
 #add 2024 cmm catch for s 3,4 of FY2023 catches
-c23om2=c23om
+c23om2=c23
 c23om2$catch[c23om2$seas%in%c(3,4)]=cmat3$c24[cmat3$Seas%in%c(3,4)]
 
 c24om1 = data.frame(year=rep(2024,dim(cmat3)[1]),
@@ -208,41 +215,3 @@ c25om = c25om1[order(c25om1$fleet, c25om1$Seas),]
 #save text file
 write.csv(ciom,"C:/Users/desiree.tommasi/Documents/Bluefin/2024baseOM/ciom.csv")
 write.csv(c25om,"C:/Users/desiree.tommasi/Documents/Bluefin/2024baseOM/ciom25.csv")
-
-#find the total TAC (no discards) by calendar year and fleeet type
-tac23 = sum(ciom$catch[ciom$year==2023&ciom$fleet %in% c(1:23)])
-tac24 = sum(ciom$catch[ciom$year==2023&ciom$seas%in%c(3,4)&ciom$fleet %in% c(1:23)])+
-  sum(ciom$catch[ciom$year==2024&ciom$seas%in%c(1,2)&ciom$fleet %in% c(1:23)])
-tac25 = sum(ciom$catch[ciom$year==2024&ciom$seas%in%c(3,4)&ciom$fleet %in% c(1:23)])+
-  sum(ciom25$catch[ciom25$year==2025&ciom25$Seas%in%c(1,2)&ciom25$fleet %in% c(1:23)])
-
-#small fish TAc for WPO, note prop small of mixed fleet same as FY2022 ~ 36%
-tac23ws = sum(ciom$catch[ciom$year==2023&ciom$fleet %in% c(8:10,12:16)])+
-  0.357521*sum(ciom$catch[ciom$year==2023&ciom$fleet %in% c(11,17:19)])
-tac24ws = sum(ciom$catch[ciom$year==2023&ciom$seas%in%c(3,4)&ciom$fleet %in% c(8:10,12:16)])+
-  sum(ciom$catch[ciom$year==2024&ciom$seas%in%c(1,2)&ciom$fleet %in% c(8:10,12:16)])+
-  0.357521*sum(ciom$catch[ciom$year==2023&ciom$seas%in%c(3,4)&ciom$fleet %in% c(11,17:19)])+
-  0.357521*sum(ciom$catch[ciom$year==2024&ciom$seas%in%c(1,2)&ciom$fleet %in% c(11,17:19)])
-tac25ws = sum(ciom$catch[ciom$year==2024&ciom$seas%in%c(3,4)&ciom$fleet %in% c(8:10,12:16)])+
-  sum(ciom25$catch[ciom25$year==2025&ciom25$Seas%in%c(1,2)&ciom25$fleet %in% c(8:10,12:16)])+
-  0.357521*sum(ciom$catch[ciom$year==2024&ciom$seas%in%c(3,4)&ciom$fleet %in% c(11,17:19)])+
-  0.357521*sum(ciom25$catch[ciom25$year==2025&ciom25$Seas%in%c(1,2)&ciom25$fleet %in% c(11,17:19)])
-
-#small fish TAc for WPO, note prop large of mixed fleet same as FY2022 ~ 64%
-tac23wl = sum(ciom$catch[ciom$year==2023&ciom$fleet %in% c(1:7)])+
-  0.642479*sum(ciom$catch[ciom$year==2023&ciom$fleet %in% c(11,17:19)])
-tac24wl = sum(ciom$catch[ciom$year==2023&ciom$seas%in%c(3,4)&ciom$fleet %in% c(1:7)])+
-  sum(ciom$catch[ciom$year==2024&ciom$seas%in%c(1,2)&ciom$fleet %in% c(1:7)])+
-  0.642479*sum(ciom$catch[ciom$year==2023&ciom$seas%in%c(3,4)&ciom$fleet %in% c(11,17:19)])+
-  0.642479*sum(ciom$catch[ciom$year==2024&ciom$seas%in%c(1,2)&ciom$fleet %in% c(11,17:19)])
-tac25wl = sum(ciom$catch[ciom$year==2024&ciom$seas%in%c(3,4)&ciom$fleet %in% c(1:7)])+
-  sum(ciom25$catch[ciom25$year==2025&ciom25$Seas%in%c(1,2)&ciom25$fleet %in% c(1:7)])+
-  0.642479*sum(ciom$catch[ciom$year==2024&ciom$seas%in%c(3,4)&ciom$fleet %in% c(11,17:19)])+
-  0.642479*sum(ciom25$catch[ciom25$year==2025&ciom25$Seas%in%c(1,2)&ciom25$fleet %in% c(11,17:19)])
-
-#find the EPO TAC (no discards) by calendar year 
-tac23e = sum(ciom$catch[ciom$year==2023&ciom$fleet %in% c(20:23)])
-tac24e = sum(ciom$catch[ciom$year==2023&ciom$seas%in%c(3,4)&ciom$fleet %in% c(20:23)])+
-  sum(ciom$catch[ciom$year==2024&ciom$seas%in%c(1,2)&ciom$fleet %in% c(20:23)])
-tac25e = sum(ciom$catch[ciom$year==2024&ciom$seas%in%c(3,4)&ciom$fleet %in% c(20:23)])+
-  sum(ciom25$catch[ciom25$year==2025&ciom25$Seas%in%c(1,2)&ciom25$fleet %in% c(20:23)])
