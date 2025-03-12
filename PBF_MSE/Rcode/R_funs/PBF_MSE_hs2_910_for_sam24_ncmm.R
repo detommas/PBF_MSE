@@ -10,18 +10,18 @@
 #' @param lag lag between data and assessement output and management, if 0 assessment output sets the TAC fir the following year
 #' @param obse selects if perfect data (2) or data with error is fed into the EM, by specifying the datatype taken from the OM bootstrap data file
 #' @param aspm aspm switch: = NULL (no ASPM, default),
-#'                            "ASPM",
-#'                            "ASPM-size" (w/ size for all fleets),
-#'                            "ASPMR" (ASPM-R),
-#'                            "ASPMR-size" (ASPM-R w/ size for all fleets),
-#'                            "ASPMR-sizef1f12" (ASPM-R w/size for all fleets, F1 & F12 selectivities),
-#'                            "ASPMR-f1f12" (ASPM-R w/ size & selectivities for F1 & F12)
-#'@param yfor years over which selectivity is averaged for forecast calculations
-#'@param tacl limit on TAc change from previous management period in %#' Note that the F target is specified in the forecast file. The fishing intensity is measured as the spawning potential ratio (SPR)
+#'                            "ASPMR-f1f3f6f21" (ASPM-R w/ size & selectivities for F1JPN_LL(S4) & F3TWN_LLSouth & F21EPO_COMM(2002-) & F6JPN_TPS_SOJ),
+#'                            "ASPMR-f1f3f21"   (ASPM-R w/ size & selectivities for F1JPN_LL(S4) & F3TWN_LLSouth & F21EPO_COMM(2002-)),
+#'                            "ASPMR-f1f3"      (ASPM-R w/ size & selectivities for F1JPN_LL(S4) & F3TWN_LLSouth),
+#'                            "ASPMR-f3"        (ASPM-R w/ size & selectivities for F3TWN_LLSouth only)
+#' @param yfor years over which selectivity is averaged for forecast calculations
+#' @param tacl limit on TAc change from previous management period in %#' Note that the F target is specified in the forecast file. The fishing intensity is measured as the spawning potential ratio (SPR)
+#' @param is_qcreep switch for q creep of TW LL CPUE for robustness test: = FALSE (default), TRUE (q creep)
+#' @param is_hi_discard specifies higher discards for robustness test : = FALSE (default), TRUE (higher discards) 
 #' @return a data frame of output for performance statistics
 #' @author D.Tommasi
 
-PBF_MSE_hs2_910_for_sam24_ncmm = function(hsnum,hcrnum,scnnum,itr, Bthr, sa, lag, obse, aspm, yfor, tacl) { 
+PBF_MSE_hs2_910_for_sam24_ncmm = function(hsnum,hcrnum,scnnum,itr, Bthr, sa, lag, obse, aspm, yfor, tacl, is_qcreep, is_hi_discard) { 
 
 #specify the path for the harvest strategy that is being run
 hs = paste(hsnum, "/", sep = "")
@@ -172,7 +172,7 @@ for (tstep in 1:length(asmt_t)){
     
     #Generate TAC based on current harvest control rule
     #specify years over which to compute biology (yrb) and exploitation pattern (yrf)
-    TAC_mat = HCR2_pbf_byfleet_f_25for(ssout=om_out, dat = SPRmat, forf=ben, yr=yr_end, SSBtrs=ssb_trs, err=1, hs=hs,hcr=hcr,scn=scn,itr=itr,tstep=tstep,yrb=c(2002:2004),yrf=yfor, tacl=tacl,TACdt=TACdt,TACEdt=TACEdt,TACWldt=TACWldt,TACWsdt=TACWsdt, TACmat=TACmat)
+    TAC_mat = HCR2_pbf_byfleet_f_25for(ssout=om_out, dat = SPRmat, forf=ben, yr=yr_end, SSBtrs=ssb_trs, err=1, hs=hs,hcr=hcr,scn=scn,itr=itr,tstep=tstep,yrb=c(2002:2004),yrf=yfor, tacl=tacl,is_hi_discard=is_hi_discard, TACdt=TACdt,TACEdt=TACEdt,TACWldt=TACWldt,TACWsdt=TACWsdt, TACmat=TACmat)
  
     #Save the TAC
     file_tac = paste(pdir, hs, hcr, scn, itr,"/TAC",(tstep+1),".RData", sep = "")
@@ -243,7 +243,7 @@ for (tstep in 1:length(asmt_t)){
     }    
     #*****************************************************************************************
     #Step 4: Run the estimation model , can choose to run with (datatype =3) or without observation error (datatype=2)
-    EM_fun_adj(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt, datatype=obse, lag=lag, aspm=aspm, yfor=yfor)
+    EM_fun_adj(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt, datatype=obse, lag=lag, aspm=aspm, yfor=yfor, is_qcreep=is_qcreep)
     
     #****************************************************************************
     #Step 5: Compute TAC using EM model output
@@ -264,7 +264,7 @@ for (tstep in 1:length(asmt_t)){
     SPRmat = em_out$sprseries
     
     #Generate TAC based on current harvest control rule
-    TAC_mat = HCR2_pbf_byfleet_f_25for(ssout=em_out, dat = SPRmat, forf=ben, yr=yr_end, SSBtrs=ssb_trs, err=1, hs=hs,hcr=hcr,scn=scn,itr=itr,tstep=tstep,yrb=c(2002:2004),yrf=yfor, tacl=tacl,TACdt=TACdt,TACEdt=TACEdt,TACWldt=TACWldt,TACWsdt=TACWsdt, TACmat=TACmat)
+    TAC_mat = HCR2_pbf_byfleet_f_25for(ssout=em_out, dat = SPRmat, forf=ben, yr=yr_end, SSBtrs=ssb_trs, err=1, hs=hs,hcr=hcr,scn=scn,itr=itr,tstep=tstep,yrb=c(2002:2004),yrf=yfor, tacl=tacl,is_hi_discard=is_hi_discard, TACdt=TACdt,TACEdt=TACEdt,TACWldt=TACWldt,TACWsdt=TACWsdt, TACmat=TACmat)
 
     #Save the TAC
     file_tac = paste(pdir, hs, hcr, scn, itr,"/TAC",(tstep+1),".RData", sep = "")
