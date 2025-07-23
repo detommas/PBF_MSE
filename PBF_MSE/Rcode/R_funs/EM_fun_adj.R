@@ -20,10 +20,11 @@
 #'                            "ASPMR-f1f3"      (ASPM-R w/ size & selectivities for F1JPN_LL(S4) & F3TWN_LLSouth),
 #'                            "ASPMR-f3"        (ASPM-R w/ size & selectivities for F3TWN_LLSouth only)
 #' @param yfor years over which to compute the sel and relF for the forecast file
+#' @param is_qcreep switch for q creep of TW LL CPUE for robustness test: = FALSE (default), TRUE (q creep)
 #' 
 #' @author Desiree Tommasi and Norio Takahashi
 
-EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt, datatype, lag, aspm, yfor){
+EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tstep, tasmt, datatype, lag, aspm = NULL, yfor, is_qcreep = FALSE){
  
 #*****************************CHANGE DAT FILE*******************************************   
   # Enter new catch data given the TAC into the PAR file
@@ -54,6 +55,12 @@ EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tst
     boot_new$endyr=endYear
     boot_new$catch=boot_old$catch[which(boot_old$catch$year<=boot_new$endyr),]
     boot_new$CPUE=boot_old$CPUE[which(boot_old$CPUE$year<=boot_new$endyr),]
+    
+    # modify TW LL cpue (q creep) for robustness test
+    if(is_qcreep){
+      boot_new$CPUE <- change_cpue_qcreep(cpue_dat = boot_new$CPUE, is_tstep1 = TRUE)
+    }
+    
     for (j in c(1:23)){
       sdat=boot_old$sizefreq_data_list[[j]]
       names(sdat)[2]="Yr"
@@ -77,6 +84,11 @@ EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tst
     #Extract the new bootstrap
     new_cpue31 = boot_dat$CPUE %>% filter(index==31&year %in% c((boot_dat$endyr-tasmt-lag+1):endYear))
 
+    # modify TW LL cpue (q creep) for robustness test
+    if(is_qcreep){
+      new_cpue31 <- change_cpue_qcreep(cpue_dat = new_cpue31, is_tstep1 = FALSE)
+    }
+    
     #add the new CPUE data
     boot_new$CPUE = rbind(boot_old$CPUE, new_cpue31)
     

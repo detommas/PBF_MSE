@@ -47,6 +47,15 @@ cmin8= read.csv(paste(pdir,"cmin8.csv", sep = ""))
 
 #Set the scenario
 scnnum = 3
+is_qcreep = FALSE # Reference set
+is_hi_discard = FALSE # Reference set
+
+#scnnum = 101 # Robustness test (q creep) based on OM1 (Base case)
+            # NOTE: Must specify scnnum for q creep conditioning
+#is_qcreep = TRUE # Robustness test (q creep)
+
+#is_hi_discard = TRUE # Robustness test (higher discards)
+
 #for (scnnum in 11:12){ 
 
 #read selectivity deviations
@@ -73,7 +82,7 @@ registerDoParallel(cl)
 #Note that the F based TRP is specified already in the forecast file 
 #the output is already saved as the code runs in the respective folders
 #main output to then compute performance metrics is the outlist.text file created for each iteration
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs1_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.15,sa=1,Fmin=0.10,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs1_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.15,sa=1,Fmin=0.10,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25,is_qcreep=is_qcreep,is_hi_discard=is_hi_discard)}
 
 #terminate cluster
 stopCluster(cl)
@@ -85,7 +94,7 @@ registerDoParallel(cl)
 #Set the HCR
 hcrnum= 2
 
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs1_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.25, Blim = 0.15,sa=1,Fmin=0.10,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs1_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.25, Blim = 0.15,sa=1,Fmin=0.10,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25,is_qcreep=is_qcreep,is_hi_discard=is_hi_discard)}
 
 #terminate cluster
 stopCluster(cl)
@@ -97,7 +106,7 @@ registerDoParallel(cl)
 #Set the HCR
 hcrnum= 5
 
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs1_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.25, Blim = 0.20,sa=1,Fmin=0.10,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs1_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.25, Blim = 0.20,sa=1,Fmin=0.10,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25,is_qcreep=is_qcreep,is_hi_discard=is_hi_discard)}
 
 #terminate cluster
 stopCluster(cl)
@@ -109,7 +118,7 @@ registerDoParallel(cl)
 #Set the HCR
 hcrnum= 6
 
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs1_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.43,sa=1,Fmin=0.10,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs1_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.43,sa=1,Fmin=0.10,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25,is_qcreep=is_qcreep,is_hi_discard=is_hi_discard)}
 
 #terminate cluster
 stopCluster(cl)
@@ -121,7 +130,7 @@ registerDoParallel(cl)
 #Set the HCR
 hcrnum= 12
 
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs1_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.077,sa=1,Fmin=0.05,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs1_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.077,sa=1,Fmin=0.05,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25,is_qcreep=is_qcreep,is_hi_discard=is_hi_discard)}
 
 stopCluster(cl)
 
@@ -132,7 +141,7 @@ registerDoParallel(cl)
 #Set the HCR
 hcrnum= 9
 #Run the MSE code for specified hcr
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2', 'tidyverse')) %dopar% { PBF_MSE_hs2_910_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.20,sa=1,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2', 'tidyverse')) %dopar% { PBF_MSE_hs2_910_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.20,sa=1,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25,is_qcreep=is_qcreep,is_hi_discard=is_hi_discard)}
 
 #terminate cluster
 stopCluster(cl)
@@ -145,7 +154,7 @@ registerDoParallel(cl)
 hcrnum= 10
 #Set the scenario
 #scnnum= 1
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs2_910_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.15,sa=1,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs2_910_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.15,sa=1,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25,is_qcreep=is_qcreep,is_hi_discard=is_hi_discard)}
 
 stopCluster(cl)
 
@@ -156,7 +165,7 @@ registerDoParallel(cl)
 #Set the HCR
 hcrnum=8
 #Run the MSE code for specified hcr
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2', 'tidyverse')) %dopar% { PBF_MSE_hs1_hcr8_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.20,sa=1, lag=1, obse=3, aspm = "aspmr-f1f3", yfor = c(2015:2022), tacl=25)}
+foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2', 'tidyverse')) %dopar% { PBF_MSE_hs1_hcr8_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.20,sa=1, lag=1, obse=3, aspm = "aspmr-f1f3", yfor = c(2015:2022), tacl=25,is_qcreep=is_qcreep,is_hi_discard=is_hi_discard)}
 
 stopCluster(cl)
 scnnum

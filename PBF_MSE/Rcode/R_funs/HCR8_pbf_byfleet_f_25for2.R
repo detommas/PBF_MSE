@@ -16,11 +16,12 @@
 #' @param SSBlim the limit biomass reference point
 #' @param err is the implementation error per fleet , if 1 no implementation error
 #' @param Cmin specifies the the minimum catch once the LRP has been breached
+#' @param is_hi_discard specifies higher discards for robustness test : = FALSE (default), TRUE (higher discards) 
 
 #' @return A TAC in mt
 #' @author Desiree Tommasi
 
-HCR8_pbf_byfleet_f_25for2 <- function(ssout, dat, forf, yr, SSBtrs, SSBlim, Ftgt,cr, err, Cmin, hs,hcr,scn,itr,tstep, yrb,yrf,tacl,TACdt,TACEdt,TACWldt,TACWsdt, TACmat){
+HCR8_pbf_byfleet_f_25for2 <- function(ssout, dat, forf, yr, SSBtrs, SSBlim, Ftgt,cr, err, Cmin, hs,hcr,scn,itr,tstep, yrb,yrf,tacl,is_hi_discard=FALSE, TACdt,TACEdt,TACWldt,TACWsdt, TACmat){
 
   #extract the current SSB, the spawning stock biomass in the terminal year of the stock assessment
   SSBcur = dat[(dat$Yr==yr),]$SSB
@@ -161,9 +162,15 @@ HCR8_pbf_byfleet_f_25for2 <- function(ssout, dat, forf, yr, SSBtrs, SSBlim, Ftgt
   } else {
     tempc=TAC_tablei2 %>% filter(Fleet %in% c(1:13,15:19))
     tempcs= tempc %>% group_by(Seas) %>% summarize(TACl=sum(TAC))
-    TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(24)]=0.05*tempcs$TACl
-    TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(25)]=1*TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(14)]
-    TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(26)]=0.012*TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(22)]
+    if(is_hi_discard){ # higher discards for robustness test
+      TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(24)]=0.10*tempcs$TACl
+      TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(25)]=2*TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(14)]
+      TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(26)]=0.024*TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(22)]
+    }else{ # default values
+      TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(24)]=0.05*tempcs$TACl
+      TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(25)]=1*TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(14)]
+      TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(26)]=0.012*TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(22)]
+    }
   }
   
   Discard = sum(TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(24:26)]) #this are the discards assumed by the EM when figuring out the TAC
@@ -267,9 +274,15 @@ HCR8_pbf_byfleet_f_25for2 <- function(ssout, dat, forf, yr, SSBtrs, SSBlim, Ftgt
   } else {
     tempc=TAC_tablei2 %>% filter(Fleet %in% c(1:13,15:19))
     tempcs= tempc %>% group_by(Seas) %>% summarize(TACl=sum(TAC))
-    TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(24)]=0.05*tempcs$TACl
-    TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(25)]=1*TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(14)]
-    TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(26)]=0.012*TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(22)]
+    if(is_hi_discard){ # higher discards for robustness test
+      TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(24)]=0.10*tempcs$TACl
+      TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(25)]=2*TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(14)]
+      TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(26)]=0.024*TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(22)]
+    }else{ # default values
+      TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(24)]=0.05*tempcs$TACl
+      TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(25)]=1*TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(14)]
+      TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(26)]=0.012*TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(22)]
+    }
   }
   
   Discard = sum(TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(24:26)]) 
@@ -288,9 +301,15 @@ HCR8_pbf_byfleet_f_25for2 <- function(ssout, dat, forf, yr, SSBtrs, SSBlim, Ftgt
     if (err>0){
       tempc=TAC_table %>% filter(Fleet %in% c(1:13,15:19))
       tempcs= tempc %>% group_by(Seas) %>% summarize(TACl=sum(TAC))
-      TAC_table$TAC[TAC_table$Fleet %in% c(24)]=0.05*tempcs$TACl
-      TAC_table$TAC[TAC_table$Fleet %in% c(25)]=1*TAC_table$TAC[TAC_table$Fleet %in% c(14)]
-      TAC_table$TAC[TAC_table$Fleet %in% c(26)]=0.012*TAC_table$TAC[TAC_table$Fleet %in% c(22)]
+      if(is_hi_discard){ # higher discards for robustness test
+        TAC_table$TAC[TAC_table$Fleet %in% c(24)]=0.10*tempcs$TACl
+        TAC_table$TAC[TAC_table$Fleet %in% c(25)]=2*TAC_table$TAC[TAC_table$Fleet %in% c(14)]
+        TAC_table$TAC[TAC_table$Fleet %in% c(26)]=0.024*TAC_table$TAC[TAC_table$Fleet %in% c(22)]
+      }else{ # default values
+        TAC_table$TAC[TAC_table$Fleet %in% c(24)]=0.05*tempcs$TACl
+        TAC_table$TAC[TAC_table$Fleet %in% c(25)]=1*TAC_table$TAC[TAC_table$Fleet %in% c(14)]
+        TAC_table$TAC[TAC_table$Fleet %in% c(26)]=0.012*TAC_table$TAC[TAC_table$Fleet %in% c(22)]
+      }
     }
     
     Discard = sum(TAC_table$TAC[TAC_table$Fleet %in% c(24:26)]) 

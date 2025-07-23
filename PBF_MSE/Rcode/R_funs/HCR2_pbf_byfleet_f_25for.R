@@ -15,11 +15,12 @@
 #' @param SSBlim the limit biomass reference point
 #' @param err is the implementation error per fleet , if 1 no implementation error
 #' @param tacl specifies limit on TAC change relative to previous period in % 
+#' @param is_hi_discard specifies higher discards for robustness test : = FALSE (default), TRUE (higher discards) 
 
 #' @return A TAC in mt
 #' @author Desiree Tommasi
 
-HCR2_pbf_byfleet_f_25for <- function(ssout, dat, forf, yr, SSBtrs, err, hs,hcr,scn,itr,tstep, yrb,yrf,tacl,TACdt,TACEdt,TACWldt,TACWsdt, TACmat){
+HCR2_pbf_byfleet_f_25for <- function(ssout, dat, forf, yr, SSBtrs, err, hs,hcr,scn,itr,tstep, yrb,yrf,tacl,is_hi_discard=FALSE, TACdt,TACEdt,TACWldt,TACWsdt, TACmat){
 
   #extract the current SSB, the spawning stock biomass in the terminal year of the stock assessment
   SSBcur = dat[(dat$Yr==yr),]$SSB
@@ -177,9 +178,15 @@ HCR2_pbf_byfleet_f_25for <- function(ssout, dat, forf, yr, SSBtrs, err, hs,hcr,s
   } else {
     tempc=TAC_tablei2 %>% filter(Fleet %in% c(1:13,15:19))
     tempcs= tempc %>% group_by(Seas) %>% summarize(TACl=sum(TAC))
-    TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(24)]=0.05*tempcs$TACl
-    TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(25)]=1*TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(14)]
-    TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(26)]=0.012*TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(22)]
+    if(is_hi_discard){ # higher discards for robustness test
+      TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(24)]=0.10*tempcs$TACl
+      TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(25)]=2*TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(14)]
+      TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(26)]=0.024*TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(22)]
+    }else{ # default values
+      TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(24)]=0.05*tempcs$TACl
+      TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(25)]=1*TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(14)]
+      TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(26)]=0.012*TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(22)]
+    }
   }
   
   Discard = sum(TAC_tablei2$TAC[TAC_tablei2$Fleet %in% c(24:26)]) #this are the discards assumed by the EM when figuring out the TAC
