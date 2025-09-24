@@ -25,9 +25,8 @@ OM_fun_tvry_adj_lag <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin,
   #The OM catch data corresponds to the bootstrap data with no error
   
   #create directory for the operating model
-  setwd(paste(pdir, hs, hcr, scn, itr,"/", tstep, sep = ""))
-  cmddir = "mkdir OMlag"
-  shell(cmd = cmddir)
+  setwd(paste(pdir, hs, hcr, scn, itr,"/",tstep, sep = ""))
+  dir.create(paste0(pdir, hs, hcr, scn,itr,"/",tstep,"/OMlag"))
   
   #move to directory with Bootstrap run
   setwd(paste(pdir, hs, hcr, scn, itr,"/", tstep, "/Boot/", sep = ""))
@@ -155,24 +154,24 @@ OM_fun_tvry_adj_lag <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin,
   
   #Specify inputs to change_rec_devs function
   if (tstep == 1){
-    pfile_in = paste(sdir,scn, "ss3.PAR",sep="")
+    pfile_in = paste(sdir,scn, "ss3.par",sep="")
     #Select the recruitment deviations for the next 2 years since first OM run in FY2024
     rec_devsn = rec_devs[(asmt_t[tstep]-1)]
     #Select new selectivity deviations
     sel_devsn = sdev[(asmt_t[tstep]-1),]
 
   } else {
-    pfile_in = paste(pdir, hs, hcr, scn, itr,"/",(tstep-1),"/OMlag/ss.PAR", sep = "")
+    pfile_in = paste(pdir, hs, hcr, scn, itr,"/",(tstep-1),"/OMlag/ss.par", sep = "")
     rec_devsn = rec_devs[(asmt_t[tstep-1]):(asmt_t[tstep]-1)]
     sel_devsn = sdev[(asmt_t[tstep-1]):(asmt_t[tstep]-1),]
   }
   
-  pfile_out = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/OMlag/ss.PAR", sep="")
+  pfile_out = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/OMlag/ss.par", sep="")
   
   #Modify par file to include the recruitment deviations for the next assessment cycle
   change_rec_devs(recdevs_new = rec_devsn, par_file_in = pfile_in, par_file_out = pfile_out)
   #Add new selectivity deviations
-  pfile_out2 = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/OMlag/ss.PAR", sep="")
+  pfile_out2 = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/OMlag/ss.par", sep="")
   change_selex_devs_pbf(seldevs_new = sel_devsn, par_file_in = pfile_out,par_file_out = pfile_out2, na)
 
   #***************************CHANGE CTL FILE*************************************
@@ -209,20 +208,21 @@ OM_fun_tvry_adj_lag <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin,
   #write new starter file
   path_start = paste(pdir, hs, hcr, scn, itr,"/",tstep,"/OMlag/",sep="")
   SS_writestarter(starter_dat, path_start, overwrite = TRUE)
+
+#*************************COPY STOCK SYNTHESIS EXECUTABLE*********************************
+  setwd(paste0(pdir,"SS_model/"))
+  command_mv=paste0("cp ss ",pdir, hs, hcr, scn, itr,"/",tstep,"/OMlag/")
+  system(command=command_mv)
   
 #*************************RUN THE OM MODEL*************************************
-  
-  #generate the .bat file to run the model
+  #run stock synthesis model from command line
   Path = paste(pdir, hs, hcr, scn, itr, "/", tstep,"/OMlag/", sep="")
-  filename_om  <-paste(Path,"ssnohess.bat",sep="")
-  #batchtext_om = paste(pwin,"SS_model\\ss -nohess",sep="")
-  batchtext_om = paste(pwin,"SS_model\\ss -maxfn 0 -phase 50 -nohess",sep="")
-  writeLines(batchtext_om,filename_om)
-  
   setwd(Path)
-  command_run_om="ssnohess.bat"
-  shell(cmd= command_run_om)
-  
+  command_per="chmod +x ss"
+  system(command = command_per)
+  command_run_om="./ss -maxfn 0 -phase 50 -nohess"
+  system(command_run_om)
+
 }
   
   

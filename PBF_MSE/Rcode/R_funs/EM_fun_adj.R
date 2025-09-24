@@ -29,9 +29,8 @@ EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tst
   # Enter new catch data given the TAC into the PAR file
   
   #create directory for the estimation model
-  setwd(paste(pdir, hs, hcr, scn, itr,"/", tstep, sep = ""))
-  cmddir = "mkdir EM"
-  shell(cmd = cmddir)
+  setwd(paste(pdir, hs, hcr, scn, itr,"/",tstep, sep = ""))
+  dir.create(paste0(pdir, hs, hcr, scn,itr,"/",tstep,"/EM"))
   
   #move to directory with Bootstrap run
   setwd(paste(pdir, hs, hcr, scn, itr,"/", tstep, "/Boot/", sep = ""))
@@ -218,19 +217,20 @@ EM_fun_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr, tst
   dir_start = paste(pdir, hs, hcr, scn, itr, "/", tstep,"/EM/", sep = "")
   SS_writestarter(starter_dat, dir_start)
   
+#*************************COPY STOCK SYNTHESIS EXECUTABLE*********************************
+  setwd(paste0(pdir,"SS_model/"))
+  command_mv=paste0("cp ss ",pdir, hs, hcr, scn, itr,"/",tstep,"/EM/")
+  system(command=command_mv)
+  
 #*************************RUN THE EM MODEL*************************************
-  
-  #generate the .bat file to run the model
-  Path = paste(pdir, hs, hcr, scn, itr, "/", tstep,"/EM/", sep = "")
-  filename_em  <-paste(Path,"runem.bat",sep="")
-  batchtext_em = paste(pwin,"SS_model\\ss -nohess -cbs 500000000", sep="")
-  writeLines(batchtext_em,filename_em)
-  
+  #run stock synthesis model from command line
+  Path = paste(pdir, hs, hcr, scn, itr, "/", tstep,"/EM/", sep="")
   setwd(Path)
-  command_run_em="runem.bat"
-  shell(cmd= command_run_em)
-  
-  
+  command_per="chmod +x ss"
+  system(command = command_per)
+  command_run_em="./ss -nohess -cbs 500000000"
+  system(command_run_em)
+
 }
   
   

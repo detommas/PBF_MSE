@@ -24,9 +24,8 @@ OMBoot_fun_tvry <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
  
   #create directory for the Bootstrap routine
   setwd(paste(pdir, hs, hcr, scn, itr,"/",tstep, sep = ""))
-  cmddir = "mkdir Boot"
-  shell(cmd = cmddir)
-  
+  dir.create(paste0(pdir, hs, hcr, scn,itr,"/",tstep,"/Boot"))
+
 #*****************************CHANGE FORECAST FILE*******************************************   
   #Specify inputs to the change_for function
   if (tstep == 1){
@@ -44,7 +43,7 @@ OMBoot_fun_tvry <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
   
   #Specify inputs to change_rec_devs_alb function
   if (tstep == 1){
-    pfile_in = paste(sdir,scn, "ss3.PAR",sep="")
+    pfile_in = paste(sdir,scn, "ss3.par",sep="")
     #Select the recruitment deviations for the next 2 years since first OM run in FY2024
     rec_devsn = rec_devs[(asmt_t[tstep]-1):((asmt_t[tstep])+(tasmt-3))]
     #Select new selectivity deviations
@@ -58,13 +57,13 @@ OMBoot_fun_tvry <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
     sel_devsn = sdev[(asmt_t[tstep-1]+1):((asmt_t[tstep-1]+1)+(tasmt-1)),]
   }
   
-  pfile_out = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/Boot/ss.PAR", sep="")
+  pfile_out = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/Boot/ss.par", sep="")
   
   #Modify par file to include the recruitment deviations for the next assessment cycle
   change_rec_devs(recdevs_new = rec_devsn, par_file_in = pfile_in, par_file_out = pfile_out)
   
   #Add new selectivity deviations
-  pfile_out2 = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/Boot/ss.PAR", sep="")
+  pfile_out2 = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/Boot/ss.par", sep="")
   
   change_selex_devs_pbf(seldevs_new = sel_devsn, par_file_in = pfile_out,par_file_out = pfile_out2, na)
   
@@ -140,17 +139,20 @@ OMBoot_fun_tvry <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
   path_start = paste(pdir, hs, hcr, scn, itr,"/",tstep,"/Boot/",sep="")
   SS_writestarter(starter_dat, path_start, overwrite = TRUE)
   
+#*************************COPY STOCK SYNTHESIS EXECUTABLE*********************************
+setwd(paste0(pdir,"SS_model/"))
+command_mv=paste0("cp ss ",pdir, hs, hcr, scn, itr,"/",tstep,"/Boot/")
+system(command=command_mv)
+  
 #*************************RUN THE BOOTSTRAP MODEL*************************************
   
-  #generate the .bat file to run the model
+  #run stock synthesis model from command line
   Path = paste(pdir, hs, hcr, scn, itr, "/", tstep,"/Boot/", sep="")
-  filename_om  <-paste(Path,"ssnohess.bat",sep="")
-  batchtext_om = paste(pwin,"SS_model\\ss -maxfn 0 -phase 50 -nohess",sep="")
-  writeLines(batchtext_om,filename_om)
-  
   setwd(Path)
-  command_run_om="ssnohess.bat"
-  shell(cmd= command_run_om)
+  command_per="chmod +x ss"
+  system(command = command_per)
+  command_run_om="./ss -maxfn 0 -phase 50 -nohess"
+  system(command_run_om)
   
   
 }

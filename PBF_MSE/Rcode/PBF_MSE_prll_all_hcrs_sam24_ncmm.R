@@ -17,13 +17,13 @@ library(reshape2)
 library(tidyverse)
 
 #Specify path of parent directory
-pdir = "J:/Desiree/PBF_MSE/"
+pdir = "/home/user/PBF_MSE/PBF_MSE/"
 #pdir = "C:/Users/desiree.tommasi/Documents/Bluefin/Github/s1720/PBF_MSE/"
 #set working directory to where all functions needed are stored
 setwd(paste(pdir,"Rcode/R_funs", sep = ""))
 
 #Specify the path of conditioned initial OM
-sdir = "J:/Desiree/PBF_MSE/Condition/"
+sdir = "/home/user/PBF_MSE/PBF_MSE/Condition/"
 #sdir = "C:/Users/desiree.tommasi/Documents/Bluefin/Github/s1720/PBF_MSE/Condition/"
 
 #source all the functions
@@ -46,7 +46,7 @@ ciom25= read.csv(paste(pdir,"ciom25.csv", sep = ""))
 cmin8= read.csv(paste(pdir,"cmin8.csv", sep = ""))
 
 #Set the scenario
-scnnum = 3
+scnnum = 1
 #for (scnnum in 11:12){ 
 
 #read selectivity deviations
@@ -56,7 +56,7 @@ scnnum = 3
 sdev= read.csv(paste0(pdir,"sdev1522",scnnum,".csv"))
 
 #Calculate the numbers of cores 
-no_cores = detectCores() - 22
+no_cores = detectCores() - 2
 
 #Set the harvest strategy (i.e. the hcr shape)
 hsnum = 1
@@ -66,6 +66,10 @@ hcrnum= 1
 #Initiate cluster
 cl= makeCluster(no_cores)
 registerDoParallel(cl)
+
+#test run for one iteration - not parallel
+itr=1
+PBF_MSE_hs1_for_sam24_ncmm(pdir,hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.15,sa=1,Fmin=0.10,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25)
 
 #Run the MSE code for specified number of iterations
 #Bthr is the SSB based biomass reference point. It represents the fraction of unfished SSB

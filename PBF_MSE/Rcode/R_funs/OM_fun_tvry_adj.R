@@ -21,9 +21,8 @@ OM_fun_tvry_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
   #The OM catch data corresponds to the bootstrap data with no error
   
   #create directory for the operating model
-  setwd(paste(pdir, hs, hcr, scn, itr,"/", tstep, sep = ""))
-  cmddir = "mkdir OM"
-  shell(cmd = cmddir)
+  setwd(paste(pdir, hs, hcr, scn, itr,"/",tstep, sep = ""))
+  dir.create(paste0(pdir, hs, hcr, scn,itr,"/",tstep,"/OM"))
   
   #move to directory with Bootstrap run
   setwd(paste(pdir, hs, hcr, scn, itr,"/", tstep, "/Boot/", sep = ""))
@@ -104,12 +103,12 @@ OM_fun_tvry_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
   #Move to the Bootstrap model directory 
   setwd(paste(pdir, hs, hcr, scn, itr,"/", tstep,"/Boot/", sep=""))
 
-  command_mv = paste("for %I in (forecast.ss) do copy %I ", pwin, hsw, hcrw, scnw, itr, "\\",tstep,"\\OM\\", sep ="")
-  shell(cmd = command_mv)
-  command_mv = paste("for %I in (ss.PAR) do copy %I ", pwin, hsw, hcrw, scnw, itr, "\\",tstep,"\\OM\\", sep ="")
-  shell(cmd = command_mv)
-  command_mv = paste("for %I in (Boot.ctl) do copy %I ", pwin, hsw, hcrw, scnw, itr, "\\",tstep,"\\OM\\", sep ="")
-  shell(cmd = command_mv)
+  command_mv = paste0("cp forecast.ss ", pdir, hs, hcr, scn, itr, "/",tstep,"/OM/")
+  system(command=command_mv)
+  command_mv = paste0("cp ss.par ", pdir, hs, hcr, scn, itr, "/",tstep,"/OM/")
+  system(command = command_mv)
+  command_mv = paste0("cp Boot.ctl ", pdir, hs, hcr, scn, itr, "/",tstep,"/OM/")
+  system(command = command_mv)
   
 #*************************CHANGE STARTER FILE****************************************
   #Modify starter file to run OM with new catch data without estimating parameters 
@@ -135,19 +134,21 @@ OM_fun_tvry_adj <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
   #write new starter file
   path_start = paste(pdir, hs, hcr, scn, itr,"/",tstep,"/OM/",sep="")
   SS_writestarter(starter_dat, path_start, overwrite = TRUE)
+
+#*************************COPY STOCK SYNTHESIS EXECUTABLE*********************************
+  setwd(paste0(pdir,"SS_model/"))
+  command_mv=paste0("cp ss ",pdir, hs, hcr, scn, itr,"/",tstep,"/OM/")
+  system(command=command_mv)
   
 #*************************RUN THE OM MODEL*************************************
   
-  #generate the .bat file to run the model
+  #run stock synthesis model from command line
   Path = paste(pdir, hs, hcr, scn, itr, "/", tstep,"/OM/", sep="")
-  filename_om  <-paste(Path,"ssnohess.bat",sep="")
-  #batchtext_om = paste(pwin,"SS_model\\ss -nohess",sep="")
-  batchtext_om = paste(pwin,"SS_model\\ss -maxfn 0 -phase 50 -nohess",sep="")
-  writeLines(batchtext_om,filename_om)
-  
   setwd(Path)
-  command_run_om="ssnohess.bat"
-  shell(cmd= command_run_om)
+  command_per="chmod +x ss"
+  system(command = command_per)
+  command_run_om="./ss -maxfn 0 -phase 50 -nohess"
+  system(command_run_om)
   
 }
   

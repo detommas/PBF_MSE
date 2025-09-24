@@ -1,6 +1,7 @@
 #' Runs the PBF MSE framework for the specified number of iterations
 #' Calculates catch per fleet using the relF and fmultiplier
 #' Note that this was created to be run using the wrapper function PBR_MSE_prll.R
+#' @param pdir parent directory
 #' @param hsnum number characterizing the harvest strategy being run
 #' @param hcrnum number characterizing the harvest control rule being run
 #' @param scnnum number characterizing the uncertainity scenario being run
@@ -24,7 +25,7 @@
 #' @return a data frame of output for performance statistics
 #' @author D.Tommasi
 
-PBF_MSE_hs1_for_sam24_ncmm = function(hsnum,hcrnum,scnnum,itr, Bthr, Blim, sa, Fmin, lag, obse, aspm, yfor,tacl) { 
+PBF_MSE_hs1_for_sam24_ncmm = function(pdir, hsnum,hcrnum,scnnum,itr, Bthr, Blim, sa, Fmin, lag, obse, aspm, yfor,tacl) { 
 
 #specify the path for the harvest strategy that is being run
 hs = paste(hsnum, "/", sep = "")
@@ -39,16 +40,11 @@ scn = paste(scnnum, "/", sep = "")
 scnw = paste(scnnum, "\\", sep = "")
 
 #Specify parent directories path 
-pdir = "J:/Desiree/PBF_MSE/"
-pwin = "J:\\Desiree\\PBF_MSE\\"
-#pdir = "C:/Users/desiree.tommasi/Documents/Bluefin/Github/PBF_MSE_main/PBF_MSE/"
-#pwin = "C:\\Users\\desiree.tommasi\\Documents\\Bluefin\\Github\\PBF_MSE_main\\PBF_MSE\\"
-
+pdir = "/home/user/PBF_MSE/PBF_MSE/"
 
 #Specify the path of conditioned initial OM
 #sdir = "D:/Desiree/PBF_MSE/Condition/"
-sdir = paste0(pdir, "Condition\\")
-#sdir = "C:/Users/desiree.tommasi/Documents/Bluefin/Github/PBF_MSE_main/PBF_MSE/Condition/"
+sdir = paste0(pdir, "Condition/")
 
 #Specify vectors where to save output (output is from OM unless otherwise specified) for the future simulation years
 Rdat = 1:(length(asmt_t)*tasmt) # current recruits
@@ -81,8 +77,7 @@ dir.create(paste0(pdir, hs, hcr, scn))
 setwd(paste(pdir,hs, hcr, scn, sep = ""))
 
 #create directory for each iteration (i.e. different recruitment and time varying selectivity errors)
-cmddir = paste("mkdir", itr)
-shell(cmd = cmddir)
+dir.create(paste0(pdir, hs, hcr, scn,itr))
 
 #**************************************************************************************
 #Generate recruitment deviations
@@ -91,7 +86,7 @@ shell(cmd = cmddir)
 setwd(paste(pdir, hs, hcr, scn, itr, sep = ""))
 
 #Create a folder where to store deviations for each MSE iteration (i.e. 30 year simulation), and the implementation error
-shell(cmd = "mkdir Rec_dev")
+dir.create(paste0(pdir, hs, hcr, scn,itr,"/Rec_dev"))
 
 rec_devs = recdevs_mse(itr, (length(asmt_t)*tasmt), 0.6)
 
@@ -103,9 +98,8 @@ for (tstep in 1:length(asmt_t)){
   
   #create directory for new time step where the new dat file will be saved
   setwd(paste(pdir,hs, hcr, scn, itr, sep = ""))
-  cmddir = paste("mkdir", tstep)
-  shell(cmd = cmddir)
-  
+  dir.create(paste0(pdir, hs, hcr, scn,itr,"/",tstep))
+
   #*************************************************************************************
   #Step 1: Modify original dat file to include the TAC as catch for the next three years
   #For the first year we choose the catch limits of the first projection scenario of the 2022 update
@@ -159,10 +153,10 @@ for (tstep in 1:length(asmt_t)){
     #read OM output file and OM forecast report file
     if (lag==0) {
       out_dir = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/OM/", sep = "")
-      ben_file_in = paste(pdir, hs, hcr, scn, itr,"/",tstep,"/OM/Forecast-report.SSO", sep = "")
+      ben_file_in = paste(pdir, hs, hcr, scn, itr,"/",tstep,"/OM/Forecast-report.sso", sep = "")
     } else {
       out_dir = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/OMlag/", sep = "")
-      ben_file_in = paste(pdir, hs, hcr, scn, itr,"/",tstep,"/OMlag/Forecast-report.SSO", sep = "")
+      ben_file_in = paste(pdir, hs, hcr, scn, itr,"/",tstep,"/OMlag/Forecast-report.sso", sep = "")
     }
     
     om_out = SS_output(out_dir, covar = FALSE, ncols = 250)
@@ -265,7 +259,7 @@ for (tstep in 1:length(asmt_t)){
     #read EM output file
     out_dir = paste(pdir, hs, hcr, scn, itr, "/",tstep,"/EM/", sep = "")
     em_out = SS_output(out_dir, covar = FALSE, ncols = 250)
-    ben_file_in = paste(pdir, hs, hcr, scn, itr,"/",tstep,"/EM/Forecast-report.SSO", sep = "")
+    ben_file_in = paste(pdir, hs, hcr, scn, itr,"/",tstep,"/EM/Forecast-report.sso", sep = "")
     ben = readLines(ben_file_in, warn = FALSE)
     
     yr_end = em_out$endyr
