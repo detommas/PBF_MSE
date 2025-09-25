@@ -50,7 +50,7 @@ OMBoot_fun_tvry <- function(pdir, sdir, hs, hcr, scn, hsw, hcrw, scnw, pwin, itr
     sel_devsn = sdev[(asmt_t[tstep]-1):((asmt_t[tstep])+(tasmt-3)),]
 
   } else {
-    pfile_in = paste(pdir, hs, hcr, scn, itr,"/",(tstep-1),"/Boot/ss.PAR", sep = "")
+    pfile_in = paste(pdir, hs, hcr, scn, itr,"/",(tstep-1),"/Boot/ss.par", sep = "")
     #Select the recruitment deviations for the next 2 years since first OM run in FY2024
     rec_devsn = rec_devs[(asmt_t[tstep-1]+1):((asmt_t[tstep-1]+1)+(tasmt-1))]
     #Select new selectivity deviations

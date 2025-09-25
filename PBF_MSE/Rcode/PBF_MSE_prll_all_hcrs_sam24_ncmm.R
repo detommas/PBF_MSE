@@ -67,17 +67,13 @@ hcrnum= 1
 cl= makeCluster(no_cores)
 registerDoParallel(cl)
 
-#test run for one iteration - not parallel
-itr=1
-PBF_MSE_hs1_for_sam24_ncmm(pdir,hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.15,sa=1,Fmin=0.10,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25)
-
 #Run the MSE code for specified number of iterations
 #Bthr is the SSB based biomass reference point. It represents the fraction of unfished SSB
 #Blim is the limit reference point representing the fraction of unfished SSB
 #Note that the F based TRP is specified already in the forecast file 
 #the output is already saved as the code runs in the respective folders
 #main output to then compute performance metrics is the outlist.text file created for each iteration
-foreach(itr = 1:100, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs1_for_sam24_ncmm(hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.15,sa=1,Fmin=0.10,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25)}
+foreach(itr = 1:30, .packages = c('r4ss','dplyr','reshape2','tidyverse')) %dopar% { PBF_MSE_hs1_for_sam24_ncmm(pdir, hsnum,hcrnum,scnnum,itr, Bthr = 0.20, Blim = 0.15,sa=1,Fmin=0.10,lag=1,obse=3,aspm="aspmr-f1f3",yfor=c(2015:2022),tacl=25)}
 
 #terminate cluster
 stopCluster(cl)
