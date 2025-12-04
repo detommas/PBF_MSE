@@ -7,16 +7,20 @@ hsnum = 1
 hs = paste(hsnum, "/", sep = "")
 
 #specify the HCRs that were run
-hcrnumv = c(1:12)
+hcrnumv = c(1)
 
 #Specify the scenario being run
 snum = 1
 scn = paste(snum, "/", sep ="")
 
 #Specify parent directories path 
-pdir= "D:/Desiree/PBF_MSE/"
+pdir = "/home/user/PBF_MSE/PBF_MSE/"
+#pdir= "D:/Desiree/PBF_MSE/"
 #pdir = "C:/Users/desiree.tommasi/Documents/Bluefin/PBF_MSE/"
 #pdir = "C:/Users/FRDScientist/Documents/Desiree/MSE_2/MSE_ALB/"
+
+#specify # of itrations
+itrnum = 30
 
 for (j in 1:length(hcrnumv)){
   
@@ -27,7 +31,7 @@ for (j in 1:length(hcrnumv)){
   #Extract results from each iteration and add to the same matrix
   itrn =NA
   
-  for (itr in 1:100){
+  for (itr in 1:itrnum){
     #check what is in the working directory
     itr_d= paste(pdir, hs, hcr, scn, itr, sep = "")
     
