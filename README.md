@@ -15,16 +15,14 @@ version 4.3.1, and r4ss package 1.49.2.
 
 ## Getting started with running the PBF MSE
 
--   Clone the repository your computer. It contains all the directories
+Clone the repository your computer. It contains all the directories
     and files needed to run the MSE for scenario 1, harvest strategy 1,
     and harvest control rule 15. Note that you need to keep the directory
     structure as is. The numbered directory has the following format
     *harvest strategy/hcr/scenario/iteration/time step*
--   Change paths at the start of *PBF_MSE_prll_hs1_hcr1_sam24_ncmm.R* and *PBF_MSE_hs1_for_sam24_ncmm.R* to
+-   Change paths at the start of *PBF_MSE_prll_all_hcrs_sam24_ncmm.R* to
     reflect the path where the PBF_MSE folder is on your computer.
--   Run *PBF_MSE_itr1.R* to make sure the code works for 1 iteration (EM
-    is now run without computing the hessian, so one iteration for the
-    30 year simulation should take about 8 hrs). This code
+-   Run the code first for one hcr and iteration to make sure the it works. This code
     calls the *PBF_MSE_hs1_for_sam24_ncmm.R* wrapper function that runs the MSE. You can also 
     run the simulation with no EM by selecting sa=0 instead of 1 in the call to the *PBF_MSE_hs1_for_sam24_ncmm.R* function.
 -   Go over the *PBF_MSE_hs1_for_sam24_ncmm.R code* to make sure you understand what it
@@ -37,4 +35,3 @@ version 4.3.1, and r4ss package 1.49.2.
     outmat table that collects all the information to generate
     performance metrics. This information is also saved as a text file,
     *outlist.txt*.
--   Once the code for 1 iteration works, you can try running the *PBF_MSE_prll_hs1_hcr1_sam24_ncmm.R* to run multiple iterations in parallel
