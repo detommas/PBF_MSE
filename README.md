@@ -15,7 +15,7 @@ version 4.3.1, and r4ss package 1.49.2.
 
 ## Getting started with running the PBF MSE
 
-Clone the repository your computer. It contains all the directories
+-   Clone the repository your computer. It contains all the directories
     and files needed to run the MSE for scenario 1, harvest strategy 1,
     and harvest control rule 15. Note that you need to keep the directory
     structure as is. The numbered directory has the following format
