@@ -1,9 +1,8 @@
 # Pacific Bluefin Tuna Management Strategy Evaluation
 
 This repository contains the code to run a management strategy
-evaluation (MSE) for Pacific Bluefin tuna. Note that the MSE and code is
-still in development. This is a very early beta version with the candidate harvest control rules 
-proposed by the IATTC and WCPFC NC Joint Working Group in summer 2023.
+evaluation (MSE) for Pacific Bluefin tuna for the candidate harvest control rules 
+proposed by the IATTC and WCPFC NC Joint Working Group.
 The repository is intended to be a code sharing and collaboration platform for all the
 members of the ISC Pacific Bluefin Working Group (PBFWG) that are
 working on developing and testing the MSE.
